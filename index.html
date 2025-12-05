@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#003366">
+  
+  <title>Mobile Carb Check - Instant Compliance & Testing</title>
+
+  <meta name="description" content="Keep your fleet compliant. Have VIN DIESEL check your compliance instantly.">
+  <meta name="keywords" content="CARB Compliance, Clean Truck Check, Heavy Duty Diesel, Smoke Test, VIN Check, PSIP, OVI Test, OBD Testing, California Trucking, Mobile Diesel Mechanic">
+  
+  <!-- Social Media & AI Preview Tags -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://carbcleantruckcheck.app/">
+  <meta property="og:title" content="Mobile Carb Check - Instant Status">
+  <meta property="og:description" content="Keep your fleet compliant. Have VIN DIESEL check your compliance instantly.">
+  <meta property="og:image" content="https://carbcleantruckcheck.app/logo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="NorCal CARB Mobile">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Mobile Carb Check">
+  <meta name="twitter:description" content="Keep your fleet compliant. Have VIN DIESEL check your compliance instantly.">
+  <meta name="twitter:image" content="https://carbcleantruckcheck.app/logo.png">
+  
+  <link rel="canonical" href="https://carbcleantruckcheck.app" />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="apple-touch-icon" href="/logo.svg">
+  
+  <!-- Styles -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: '#003366',
+            green: '#15803d',
+          },
+          screens: {
+            'standalone': { 'raw': '(display-mode: standalone)' }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    :root {
+      --green: #15803d;
+      --navy: #003366;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #003366;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Safe Area for iPhone X+ */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    .pt-safe { padding-top: env(safe-area-inset-top); }
+    
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+  </style>
+  
+  <!-- AI Search Bot Optimization: FAQ Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Mobile Carb Check",
+        "operatingSystem": "iOS, Android, Web",
+        "applicationCategory": "BusinessApplication",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Mobile application for checking CARB compliance status and locating certified smoke testers."
+      },
+      {
+        "@type": "LocalBusiness",
+        "name": "NorCal CARB Mobile",
+        "telephone": "617-359-6953",
+        "email": "bryan@norcalcarbmobile.com",
+        "url": "https://carbcleantruckcheck.app",
+        "areaServed": { "@type": "State", "name": "California" },
+        "priceRange": "$$"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How often do I need a CARB Clean Truck Check test?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "For 2025 and 2026, most heavy-duty diesel vehicles need to pass a test twice a year (every 6 months), linked to your DMV registration date. Starting in 2027, this increases to 4 times a year."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why is my DMV registration blocked by CARB?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Registration is commonly blocked for two reasons: 1. The $30 annual compliance fee hasn't been paid. 2. A passing smoke/OBD test hasn't been submitted within 90 days of your registration date."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this apply to pickup trucks?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Clean Truck Check program applies to diesel vehicles over 14,000 lbs GVWR. Most standard pickup trucks (F-250, 2500) are under this weight and are subject to BAR smog checks, not CARB HD I/M."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // Use relative path to avoid origin issues in previews
+      navigator.serviceWorker.register('./sw.js')
+        .then(registration => {
+          console.log('SW registered');
+        })
+        .catch(error => {
+          console.log('SW registration note:', error.message);
+        });
+    });
+  }
+</script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "vite": "https://aistudiocdn.com/vite@^7.2.6",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+    "path": "https://aistudiocdn.com/path@^0.12.7"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
