@@ -13,6 +13,7 @@ const ChatAssistant: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recentQuestions, setRecentQuestions] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +34,10 @@ const ChatAssistant: React.FC = () => {
           sessionStorage.removeItem('pending_chat_query');
           handleSend(pending);
       }
+      
+      // Load recent questions
+      const stored = JSON.parse(localStorage.getItem('vin_diesel_recent_questions') || '[]');
+      setRecentQuestions(stored);
   }, []);
 
   const saveRecentQuestion = (question: string) => {
@@ -41,6 +46,7 @@ const ChatAssistant: React.FC = () => {
           const existing = JSON.parse(localStorage.getItem('vin_diesel_recent_questions') || '[]');
           const updated = [question, ...existing.filter((q: string) => q !== question)].slice(0, 5);
           localStorage.setItem('vin_diesel_recent_questions', JSON.stringify(updated));
+          setRecentQuestions(updated);
       } catch (e) {
           console.error("Failed to save question", e);
       }
@@ -164,7 +170,7 @@ const ChatAssistant: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-200px)] bg-white/95 rounded-3xl border-4 border-navy overflow-hidden shadow-2xl mb-10">
+    <div className="flex flex-col h-[calc(100dvh-200px)] bg-white dark:bg-gray-800 rounded-3xl border-4 border-navy overflow-hidden shadow-2xl mb-10 transition-colors">
       
       {/* HEADER */}
       <div className="bg-navy text-white p-3 px-5 flex justify-between items-center">
@@ -190,13 +196,13 @@ const ChatAssistant: React.FC = () => {
       </div>
 
       {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 dark:bg-gray-900/50">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] p-4 rounded-2xl shadow-sm ${
               msg.role === 'user' 
                 ? 'bg-navy text-white rounded-br-none font-black text-xs' 
-                : 'bg-white border-2 border-navy/10 text-navy rounded-bl-none font-bold text-xs'
+                : 'bg-white dark:bg-gray-700 border-2 border-navy/10 text-navy dark:text-white rounded-bl-none font-bold text-xs'
             }`}>
               <div className="whitespace-pre-wrap">{msg.text}</div>
               {msg.groundingUrls && msg.groundingUrls.length > 0 && (
@@ -214,11 +220,11 @@ const ChatAssistant: React.FC = () => {
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white p-3 rounded-2xl border-2 border-navy/10 animate-pulse">
+            <div className="bg-white dark:bg-gray-700 p-3 rounded-2xl border-2 border-navy/10 animate-pulse">
               <div className="flex space-x-1">
-                <div className="w-1.5 h-1.5 bg-navy rounded-full"></div>
-                <div className="w-1.5 h-1.5 bg-navy rounded-full opacity-50"></div>
-                <div className="w-1.5 h-1.5 bg-navy rounded-full opacity-20"></div>
+                <div className="w-1.5 h-1.5 bg-navy dark:bg-white rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-navy dark:bg-white rounded-full opacity-50"></div>
+                <div className="w-1.5 h-1.5 bg-navy dark:bg-white rounded-full opacity-20"></div>
               </div>
             </div>
           </div>
@@ -227,24 +233,40 @@ const ChatAssistant: React.FC = () => {
       </div>
 
       {/* INPUT */}
-      <div className="p-4 bg-white border-t-2 border-navy/5">
-        <div className="relative flex items-center">
+      <div className="p-4 bg-white dark:bg-gray-800 border-t-2 border-navy/5">
+        <div className="relative flex items-center mb-3">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="ASK COMPLIANCE..."
-            className="w-full pl-5 pr-14 py-4 rounded-2xl border-2 border-navy bg-white text-navy placeholder:text-gray-300 font-black text-sm outline-none focus:border-teslaRed shadow-inner"
+            className="w-full pl-5 pr-14 py-4 rounded-2xl border-2 border-navy bg-white dark:bg-gray-700 text-navy dark:text-white placeholder:text-gray-300 font-black text-sm outline-none focus:border-teslaRed shadow-inner"
           />
           <button 
             onClick={() => handleSend()}
             disabled={loading}
-            className="absolute right-2 p-2 bg-navy text-white rounded-xl active:scale-95 transition-all"
+            className="absolute right-2 p-2 bg-navy text-white rounded-xl active:scale-95 transition-all disabled:opacity-50"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 12h14M12 5l7 7-7 7" /></svg>
           </button>
         </div>
+        
+        {/* RECENT QUESTIONS */}
+        {recentQuestions.length > 0 && (
+            <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2">
+                <p className="w-full text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Recent Searches:</p>
+                {recentQuestions.map((q, idx) => (
+                    <button 
+                        key={idx} 
+                        onClick={() => setInput(q)}
+                        className="text-[9px] font-black uppercase bg-gray-100 dark:bg-gray-700 text-navy dark:text-gray-300 px-3 py-1.5 rounded-lg border border-navy/10 hover:border-teslaRed transition-colors truncate max-w-[150px]"
+                    >
+                        {q}
+                    </button>
+                ))}
+            </div>
+        )}
       </div>
     </div>
   );
