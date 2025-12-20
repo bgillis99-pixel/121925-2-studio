@@ -157,7 +157,7 @@ const App: React.FC = () => {
         {currentView === AppView.ADMIN && <AdminView />}
         
         <div className="mt-12 space-y-6 text-center pb-24 border-t border-white/20 pt-10">
-            <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-[2.5rem] shadow-2xl border-4 border-navy space-y-6 max-w-sm mx-auto">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-[2.5rem] shadow-2xl border-4 border-navy space-y-6 max-w-sm mx-auto">
                 <div className="grid grid-cols-2 gap-2">
                     <button onClick={() => setCurrentView(AppView.TOOLS)} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center gap-2 text-[9px] font-black uppercase border-2 border-navy/10">
                         <span>🛠️</span> ENGINE SCAN

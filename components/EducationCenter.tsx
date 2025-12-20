@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { RegulatoryMilestone } from '../types';
 
@@ -13,7 +14,7 @@ const EducationCenter: React.FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       {/* Header Card */}
-      <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-3xl shadow-xl border-4 border-navy relative overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border-4 border-navy relative overflow-hidden">
         <h2 className="text-3xl font-black text-navy dark:text-white uppercase leading-none mb-2">Tester's Truth</h2>
         <p className="text-teslaRed font-black text-xs uppercase tracking-widest">The state isn't proactive. We are.</p>
         <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-teslaRed/5 rounded-full blur-2xl"></div>
@@ -56,7 +57,7 @@ const EducationCenter: React.FC = () => {
       </section>
 
       {/* CONFUSING LETTER DECODER */}
-      <section className="bg-white/95 dark:bg-gray-800 p-6 rounded-3xl shadow-xl border-4 border-navy">
+      <section className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border-4 border-navy">
         <h3 className="text-navy dark:text-white font-black text-lg uppercase mb-4 tracking-tighter">Decode That Letter</h3>
         <div className="space-y-3">
           {[
