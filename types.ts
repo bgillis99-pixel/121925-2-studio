@@ -2,7 +2,7 @@
 export enum AppView {
   HOME = 'HOME',
   ASSISTANT = 'ASSISTANT',
-  ANALYZE = 'ANALYZE',
+  EDUCATION = 'EDUCATION',
   TOOLS = 'TOOLS',
   PROFILE = 'PROFILE',
   ADMIN = 'ADMIN'
@@ -73,4 +73,11 @@ export interface Submission {
   details: any;
   coordinates: { lat: number, lng: number } | null;
   status: 'NEW' | 'REVIEWED' | 'ARCHIVED';
+}
+
+export interface RegulatoryMilestone {
+  date: string;
+  title: string;
+  description: string;
+  status: 'past' | 'current' | 'future';
 }

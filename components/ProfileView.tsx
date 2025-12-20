@@ -1,8 +1,10 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { User, HistoryItem } from '../types';
 
 interface Props {
   user: User | null;
+  history: HistoryItem[];
   onLogin: (email: string) => void;
   onRegister: (email: string) => void;
   onLogout: () => void;
@@ -12,7 +14,7 @@ interface Props {
   toggleTheme?: () => void;
 }
 
-const ProfileView: React.FC<Props> = ({ user, onLogin, onRegister, onLogout, onAdminAccess, isOnline = true, isDarkMode, toggleTheme }) => {
+const ProfileView: React.FC<Props> = ({ user, history, onLogin, onRegister, onLogout, onAdminAccess, isOnline = true, isDarkMode, toggleTheme }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,56 +30,26 @@ const ProfileView: React.FC<Props> = ({ user, onLogin, onRegister, onLogout, onA
   }, []);
 
   const requestNotifications = async () => {
-    if (!('Notification' in window)) {
-        alert("This browser does not support notifications.");
-        return;
-    }
-    
+    if (!('Notification' in window)) return;
     const permission = await Notification.requestPermission();
     setNotifPermission(permission);
-    
-    if (permission === 'granted') {
-        const reg = await navigator.serviceWorker.ready;
-        reg.showNotification('Alerts Enabled', {
-            body: 'You will now receive CARB deadline reminders and fleet updates.',
-            icon: 'https://api.qrserver.com/v1/create-qr-code/?size=192x192&data=icon&color=003366'
-        });
-    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
-    if (isRegistering) {
-      onRegister(email);
-    } else {
-      onLogin(email);
-    }
+    if (isRegistering) onRegister(email);
+    else onLogin(email);
   };
 
   const handlePartnerAccess = () => {
       const code = prompt("Enter Partner Access Code:");
-      if (code === '1225') {
-          onAdminAccess?.();
-      } else if (code) {
-          alert("Access Denied");
-      }
-  };
-
-  const createCalendarLink = (itemValue: string) => {
-      const title = encodeURIComponent(`CARB Compliance Check: ${itemValue}`);
-      const details = encodeURIComponent(`Time to re-check compliance for ${itemValue}. Open Clean Truck Check App.`);
-      const now = new Date();
-      now.setMonth(now.getMonth() + 6);
-      const start = now.toISOString().replace(/-|:|\.\d\d\d/g, "");
-      now.setHours(now.getHours() + 1);
-      const end = now.toISOString().replace(/-|:|\.\d\d\d/g, "");
-      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}`;
+      if (code === '1225') onAdminAccess?.();
+      else if (code) alert("Access Denied");
   };
 
   const filteredHistory = useMemo(() => {
-    if (!user) return [];
-    let items = [...user.history];
+    let items = [...history];
     if (search) items = items.filter(i => i.value.includes(search.toUpperCase()));
     items.sort((a, b) => {
       if (sort === 'newest') return b.timestamp - a.timestamp;
@@ -86,69 +58,72 @@ const ProfileView: React.FC<Props> = ({ user, onLogin, onRegister, onLogout, onA
       return 0;
     });
     return items;
-  }, [user, search, sort]);
+  }, [history, search, sort]);
 
   if (!user) {
     return (
-      <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-        <h2 className="text-2xl font-bold text-[#003366] dark:text-white mb-6 text-center">{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#003366] outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="trucker@example.com" />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Password</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#003366] outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="••••••••" />
-          </div>
-          <button type="submit" className="w-full bg-[#003366] text-white font-bold py-3 rounded-lg hover:bg-[#002244] transition-colors">{isRegistering ? 'Sign Up' : 'Log In'}</button>
-        </form>
-        <div className="mt-4 text-center">
-          <button onClick={() => setIsRegistering(!isRegistering)} className="text-[#15803d] text-sm font-bold hover:underline">{isRegistering ? 'Already have an account? Log In' : 'Need an account? Sign Up'}</button>
+      <div className="space-y-6">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border-4 border-navy">
+            <h2 className="text-2xl font-black text-[#003366] dark:text-white mb-6 text-center">{isRegistering ? 'Create Account' : 'Guest Mode'}</h2>
+            <p className="text-xs text-gray-500 text-center mb-6">Create an account to sync your history across devices.</p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+                <label className="block text-xs font-black text-gray-400 uppercase mb-1">Email</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border-2 border-navy rounded-xl outline-none dark:bg-gray-700 dark:text-white" placeholder="trucker@example.com" />
+            </div>
+            <div>
+                <label className="block text-xs font-black text-gray-400 uppercase mb-1">Password</label>
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border-2 border-navy rounded-xl outline-none dark:bg-gray-700 dark:text-white" placeholder="••••••••" />
+            </div>
+            <button type="submit" className="w-full btn-heavy py-4 rounded-xl">{isRegistering ? 'SIGN UP' : 'LOG IN'}</button>
+            </form>
+            <div className="mt-4 text-center">
+            <button onClick={() => setIsRegistering(!isRegistering)} className="text-[#003366] text-xs font-black hover:underline">{isRegistering ? 'ALREADY HAVE AN ACCOUNT? LOG IN' : 'NEED AN ACCOUNT? SIGN UP'}</button>
+            </div>
         </div>
-        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
-             <button onClick={handlePartnerAccess} className="text-xs text-gray-300 hover:text-gray-500 font-bold uppercase tracking-wider">🔒 Admin Access (Partner Login)</button>
+
+        <HistorySection filteredHistory={filteredHistory} search={search} setSearch={setSearch} sort={sort} setSort={setSort} isOnline={isOnline} />
+        
+        <div className="pt-6 border-t border-white/20 text-center">
+            <button onClick={handlePartnerAccess} className="text-xs text-white/50 hover:text-white font-bold uppercase tracking-wider">🔒 Admin Access</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto pb-20">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 flex justify-between items-center transition-colors">
+    <div className="max-w-2xl mx-auto pb-20 space-y-6">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border-4 border-navy flex justify-between items-center">
         <div>
-            <h2 className="text-xl font-bold text-[#003366] dark:text-white">{user.email}</h2>
-            <div className="mt-2 inline-block bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-2 py-1 rounded border border-gray-300 dark:border-gray-600">PLAN: FREE TIER</div>
+            <h2 className="text-xl font-black text-[#003366] dark:text-white truncate max-w-[200px]">{user.email}</h2>
+            <div className="mt-2 inline-block bg-navy/10 text-navy text-[10px] font-black px-2 py-1 rounded-full">FLEET PRO PLAN</div>
         </div>
-        <button onClick={onLogout} className="text-red-500 text-sm font-bold border border-red-100 dark:border-red-900/30 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">Sign Out</button>
+        <button onClick={onLogout} className="text-red-600 text-xs font-black border-2 border-red-600 px-4 py-2 rounded-xl hover:bg-red-50">SIGN OUT</button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 transition-colors">
-        <div className="flex items-center justify-between mb-4">
-             <h3 className="font-bold text-[#003366] dark:text-white text-lg">Settings</h3>
-        </div>
-        
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border-4 border-navy">
+        <h3 className="font-black text-[#003366] dark:text-white text-lg mb-4">Device Settings</h3>
         <div className="space-y-4">
              <div className="flex items-center justify-between">
                 <div>
-                    <h4 className="font-bold text-sm text-gray-700 dark:text-gray-200">Alerts & Notifications</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Get notified about 2025 deadlines.</p>
+                    <h4 className="font-black text-sm text-gray-700 dark:text-gray-200">Push Notifications</h4>
+                    <p className="text-[10px] text-gray-500">Alerts for 2025 testing deadlines.</p>
                 </div>
                 {notifPermission === 'granted' ? (
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">ACTIVE</span>
+                    <span className="text-green text-[10px] font-black">ACTIVE</span>
                 ) : (
-                    <button onClick={requestNotifications} className="bg-[#003366] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#002244] transition-colors">🔔 ENABLE</button>
+                    <button onClick={requestNotifications} className="bg-navy text-white text-[10px] font-black px-4 py-2 rounded-full">ENABLE</button>
                 )}
             </div>
             
             <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                 <div>
-                    <h4 className="font-bold text-sm text-gray-700 dark:text-gray-200">Dark Mode</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Reduce eye strain at night.</p>
+                    <h4 className="font-black text-sm text-gray-700 dark:text-gray-200">Dark Interface</h4>
+                    <p className="text-[10px] text-gray-500">Optimized for night driving.</p>
                 </div>
                 <button 
                     onClick={toggleTheme} 
-                    className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${isDarkMode ? 'bg-[#15803d]' : 'bg-gray-300'}`}
+                    className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${isDarkMode ? 'bg-teslaRed' : 'bg-gray-300'}`}
                 >
                     <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${isDarkMode ? 'translate-x-6' : 'translate-x-0'}`}></div>
                 </button>
@@ -156,51 +131,76 @@ const ProfileView: React.FC<Props> = ({ user, onLogin, onRegister, onLogout, onA
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
-        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <h3 className="font-bold text-[#003366] dark:text-white">History ({user.history.length})</h3>
-            <div className="flex gap-2">
-                <input type="text" placeholder="Search VIN..." value={search} onChange={(e) => setSearch(e.target.value)} className="p-1 px-2 text-sm border rounded dark:bg-gray-600 dark:text-white dark:border-gray-500" />
-                <select value={sort} onChange={(e) => setSort(e.target.value as any)} className="p-1 px-2 text-sm border rounded dark:bg-gray-600 dark:text-white dark:border-gray-500">
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="value">A-Z</option>
-                </select>
-            </div>
-        </div>
-        
-        <div className="divide-y divide-gray-100 dark:divide-gray-700">
-            {filteredHistory.length === 0 ? (
-                <div className="p-8 text-center text-gray-600 dark:text-gray-400">No history found.</div>
-            ) : (
-                filteredHistory.map((item: HistoryItem) => (
-                    <div key={item.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 flex justify-between items-center transition-colors">
-                        <div>
-                            <div className="font-mono font-bold text-[#003366] dark:text-white text-lg tracking-wider">{item.value}</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 flex gap-2 items-center mb-2">
-                                <span className={`px-1.5 rounded text-[10px] font-bold ${item.type === 'VIN' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>{item.type}</span>
-                                {new Date(item.timestamp).toLocaleDateString()}
-                            </div>
-                            <a href={createCalendarLink(item.value)} target="_blank" rel="noreferrer" className="text-[10px] flex items-center gap-1 text-gray-600 hover:text-[#15803d] font-bold">🔔 Set Reminder</a>
-                        </div>
-                        {isOnline ? (
-                            <a href={`https://cleantruckcheck.arb.ca.gov/Fleet/Vehicle/VehicleComplianceStatusLookup?${item.type === 'VIN' ? 'vin' : 'entity'}=${item.value}`} target="_blank" rel="noreferrer" className="text-[#15803d] font-bold text-sm border border-[#15803d] px-3 py-1 rounded hover:bg-[#15803d] hover:text-white transition-colors">CHECK</a>
-                        ) : (
-                             <span className="text-gray-400 text-xs font-bold border border-gray-200 dark:border-gray-600 px-3 py-1 rounded bg-gray-50 dark:bg-gray-700">OFFLINE</span>
-                        )}
-                    </div>
-                ))
-            )}
-        </div>
-      </div>
+      <HistorySection filteredHistory={filteredHistory} search={search} setSearch={setSearch} sort={sort} setSort={setSort} isOnline={isOnline} />
       
-      <div className="mt-8 text-center">
-         <button onClick={handlePartnerAccess} className="text-xs text-gray-500 hover:text-[#15803d] font-bold uppercase tracking-wider p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            🔑 ADMIN ACCESS (PARTNER LOGIN)
+      <div className="text-center">
+         <button onClick={handlePartnerAccess} className="text-xs text-white/70 hover:text-white font-bold uppercase p-4 border-2 border-dashed border-white/30 rounded-2xl w-full">
+            🔑 INTERNAL PARTNER LOGIN
          </button>
       </div>
     </div>
   );
+};
+
+interface HistorySectionProps {
+    filteredHistory: HistoryItem[];
+    search: string;
+    setSearch: (v: string) => void;
+    sort: string;
+    setSort: (v: any) => void;
+    isOnline: boolean;
+}
+
+const HistorySection: React.FC<HistorySectionProps> = ({ filteredHistory, search, setSearch, sort, setSort, isOnline }) => {
+    return (
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border-4 border-navy overflow-hidden">
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 border-b-2 border-navy">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-black text-[#003366] dark:text-white">Recent Checks</h3>
+                    <span className="text-[10px] font-bold text-gray-400">{filteredHistory.length} Total</span>
+                </div>
+                <div className="flex gap-2">
+                    <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                        <input type="text" placeholder="Filter VIN..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-3 py-2 text-xs border-2 border-navy rounded-xl dark:bg-gray-600 dark:text-white" />
+                    </div>
+                    <select value={sort} onChange={(e) => setSort(e.target.value as any)} className="p-2 text-xs border-2 border-navy rounded-xl dark:bg-gray-600 dark:text-white font-bold">
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                        <option value="value">A-Z</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-[400px] overflow-y-auto">
+                {filteredHistory.length === 0 ? (
+                    <div className="p-12 text-center">
+                        <span className="text-4xl block mb-2">📋</span>
+                        <p className="text-xs text-gray-500 font-bold">No history available yet.</p>
+                    </div>
+                ) : (
+                    filteredHistory.map((item) => (
+                        <div key={item.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 flex justify-between items-center">
+                            <div className="flex-1 min-w-0">
+                                <div className="font-mono font-black text-[#003366] dark:text-white text-lg tracking-wider truncate">{item.value}</div>
+                                <div className="text-[10px] text-gray-500 dark:text-gray-400 flex gap-2 items-center mt-1">
+                                    <span className={`px-2 py-0.5 rounded-full font-black ${item.type === 'VIN' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>{item.type}</span>
+                                    <span>{new Date(item.timestamp).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-2 ml-4">
+                                {isOnline ? (
+                                    <a href={`https://cleantruckcheck.arb.ca.gov/Fleet/Vehicle/VehicleComplianceStatusLookup?${item.type === 'VIN' ? 'vin' : 'entity'}=${item.value}`} target="_blank" rel="noreferrer" className="btn-heavy text-[10px] px-4 py-2 rounded-xl">CHECK</a>
+                                ) : (
+                                    <span className="text-gray-400 text-[10px] font-bold border border-gray-200 px-3 py-1 rounded-full">OFFLINE</span>
+                                )}
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
 };
 
 export default ProfileView;

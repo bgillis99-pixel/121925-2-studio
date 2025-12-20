@@ -6,8 +6,12 @@ export const COLORS = {
 };
 
 export const MODEL_NAMES = {
-  FLASH: 'gemini-2.5-flash',
-  FLASH_LITE: 'gemini-2.5-flash-lite-latest',
+  // Use gemini-3-flash-preview for general tasks as per guidelines
+  FLASH: 'gemini-3-flash-preview',
+  // Keep 2.5 flash specifically for Maps grounding as per requirements
+  FLASH_25: 'gemini-2.5-flash',
+  // Use recommended alias for flash lite
+  FLASH_LITE: 'gemini-flash-lite-latest',
   PRO: 'gemini-3-pro-preview',
   PRO_IMAGE: 'gemini-3-pro-image-preview',
   TTS: 'gemini-2.5-flash-preview-tts',
@@ -16,7 +20,7 @@ export const MODEL_NAMES = {
 };
 
 export const ASPECT_RATIOS = [
-  "1:1", "3:4", "4:3", "9:16", "16:9", "2:3", "3:2", "21:9"
+  "1:1", "3:4", "4:3", "9:16", "16:9"
 ];
 
 export const IMAGE_SIZES = ["1K", "2K", "4K"];
