@@ -1,11 +1,6 @@
-
 User-agent: *
 Allow: /
-Sitemap: https://cleantruckcheckvin.app/sitemap.xml
-
-# Specific allowance for Google's App Inspection tools
-User-agent: Google-InspectionTool
-Allow: /
+Sitemap: https://carbcleantruckcheck.app/sitemap.xml
 
 # Optimization for AI Bots
 User-agent: GPTBot
