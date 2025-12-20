@@ -11,6 +11,7 @@ import { AppView, User, HistoryItem } from './types';
 const USERS_KEY = 'vin_diesel_users';
 const CURRENT_USER_KEY = 'vin_diesel_current_user';
 const GLOBAL_HISTORY_KEY = 'vin_diesel_global_history';
+const THEME_KEY = 'vin_diesel_theme';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -28,9 +29,15 @@ const App: React.FC = () => {
   const [showInstall, setShowInstall] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem(THEME_KEY) === 'dark';
+  });
 
-  const shareUrl = 'https://carbcleantruckcheck.app';
+  const shareUrl = 'https://cleantruckcheckvin.app';
+
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
 
   useEffect(() => {
     const checkIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
@@ -93,31 +100,32 @@ const App: React.FC = () => {
           <button onClick={handleShare} className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
               <span>📤</span> SHARE
           </button>
-          <button onClick={handleInstallClick} className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
-              <span>📲</span> APP
+          <button onClick={handleInstallClick} className="flex-1 btn-heavy py-1 rounded-2xl flex flex-col items-center justify-center leading-none text-[9px]">
+              <span className="font-black">DOWN</span>
+              <span className="font-black">LOAD</span>
           </button>
       </div>
   );
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900' : 'bg-teslaRed'} font-sans text-navy dark:text-gray-100 overflow-x-hidden`}>
+    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900' : 'bg-teslaRed'} font-sans text-navy dark:text-gray-100 overflow-x-hidden transition-colors duration-300`}>
       
-      {/* TOP HEADER - LOGO REMOVED */}
-      <header className="bg-white dark:bg-gray-800 py-3 px-4 shadow-sm sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700 flex flex-col gap-3 pt-safe">
+      {/* TOP HEADER - NOW RED AND UNIFORM */}
+      <header className="bg-teslaRed dark:bg-gray-800 py-3 px-4 shadow-md sticky top-0 z-40 border-b border-white/10 flex flex-col gap-3 pt-safe">
         <div className="flex justify-between items-center">
             <div className="flex flex-col cursor-pointer" onClick={() => setCurrentView(AppView.HOME)}>
-                <h1 className="text-xl font-black tracking-tighter text-navy dark:text-white uppercase leading-none">Mobile CARB</h1>
-                <p className="text-teslaRed text-[10px] font-black tracking-widest uppercase">Clean Truck Check App</p>
+                <h1 className="text-xl font-black tracking-tighter text-white uppercase leading-none">Mobile CARB</h1>
+                <p className="text-white/80 text-[10px] font-black tracking-widest uppercase">Clean Truck Check App</p>
             </div>
-            <div className="text-[10px] font-black bg-navy/5 px-3 py-1 rounded-full text-navy dark:text-blue-300">
-                DISPATCH: <span className="text-green uppercase animate-pulse">Online</span>
+            <div className="text-[10px] font-black bg-white/10 px-3 py-1 rounded-full text-white">
+                DISPATCH: <span className="text-vibrantGreen uppercase animate-pulse">Online</span>
             </div>
         </div>
         <ActionButtons />
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 px-4 pt-6 pb-24 max-w-lg mx-auto w-full overflow-y-auto">
+      <main className="flex-1 px-4 pt-3 pb-24 max-w-lg mx-auto w-full overflow-y-auto">
         {currentView === AppView.HOME && (
             <VinChecker 
                 onAddToHistory={handleAddToHistory} 
@@ -138,6 +146,7 @@ const App: React.FC = () => {
             onLogout={() => {}} 
             isDarkMode={isDarkMode}
             toggleTheme={() => setIsDarkMode(!isDarkMode)}
+            onAdminAccess={() => setCurrentView(AppView.ADMIN)}
           />
         )}
         {currentView === AppView.ADMIN && <AdminView />}
@@ -145,12 +154,12 @@ const App: React.FC = () => {
         {/* BOTTOM REPEAT BUTTONS */}
         <div className="mt-16 space-y-8 text-center pb-24 border-t border-white/20 pt-12">
             <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-white/30 space-y-6">
-                <h4 className="text-navy dark:text-white font-black text-sm uppercase tracking-widest leading-none">NorCal CARB Mobile</h4>
+                <h4 className="text-navy dark:text-white font-black text-sm uppercase tracking-widest leading-none">MLB Marketing LLC</h4>
                 <ActionButtons />
                 <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose">
                     Statewide Heavy Duty Diesel Compliance<br/>
                     Serving All 58 California Counties<br/>
-                    © 2026 NorCal CARB Mobile LLC
+                    © 2026 MLB Marketing LLC
                 </p>
             </div>
         </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { sendMessage } from '../services/geminiService';
 import { Message } from '../types';
@@ -8,7 +9,7 @@ interface ExtendedMessage extends Message {
 
 const ChatAssistant: React.FC = () => {
   const [messages, setMessages] = useState<ExtendedMessage[]>([
-    { id: 'init', role: 'model', text: 'Hello! I am VIN DIESEL AI. Ask me about CARB regulations, find testers near you, or clarify complex compliance rules.', timestamp: Date.now() }
+    { id: 'init', role: 'model', text: 'HELLO! I AM VIN DIESEL AI. ASK ME ABOUT CARB REGULATIONS, FIND TESTERS NEAR YOU, OR CLARIFY COMPLEX COMPLIANCE RULES.', timestamp: Date.now() }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,7 @@ const ChatAssistant: React.FC = () => {
     const userMsg: ExtendedMessage = { 
         id: Date.now().toString(), 
         role: 'user', 
-        text: imageFile ? `[Uploaded Image: ${imageFile.name}] ${textToSend || 'Analyze this image.'}` : textToSend, 
+        text: imageFile ? `[IMAGE: ${imageFile.name}] ${textToSend || 'Analyze image.'}`.toUpperCase() : textToSend.toUpperCase(), 
         timestamp: Date.now() 
     };
     
@@ -99,25 +100,18 @@ const ChatAssistant: React.FC = () => {
       setMessages(prev => [...prev, botMsg]);
     } catch (error: any) {
       console.error(error);
-      const contactInfo = "\n\n📞 **IMMEDIATE SUPPORT:**\nText/Call: 617-359-6953";
+      const contactInfo = "\n\n📞 **IMMEDIATE SUPPORT:**\n617-359-6953";
       
       setMessages(prev => [...prev, { 
           id: Date.now().toString(), 
           role: 'model', 
-          text: "⚠️ Connection Failed. " + contactInfo, 
+          text: "⚠️ CONNECTION FAILED. " + contactInfo, 
           timestamp: Date.now() 
       }]);
     } finally {
       setLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-          handleSend("Analyze this image.", file);
-      }
   };
 
   const handleDownloadChat = () => {
@@ -136,162 +130,95 @@ const ChatAssistant: React.FC = () => {
       document.body.removeChild(a);
   };
 
-  const submitEscalation = () => {
-      if (!escName || !escPhone) return alert("Please fill in Name and Phone.");
-      
-      // Save data locally (Simulating a backend save)
-      const escalationData = {
-          id: Date.now(),
-          name: escName,
-          phone: escPhone,
-          issue: escIssue,
-          timestamp: new Date().toISOString()
-      };
-      
-      try {
-          const existing = JSON.parse(localStorage.getItem('carb_escalations') || '[]');
-          localStorage.setItem('carb_escalations', JSON.stringify([escalationData, ...existing]));
-          setEscSubmitted(true);
-      } catch (e) {
-          alert("Error saving data");
-      }
-  };
-
   if (showEscalation) {
       return (
-          <div className="fixed inset-0 z-50 bg-white dark:bg-gray-900 flex flex-col p-6 animate-in fade-in">
-              <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-black text-[#003366] dark:text-white">Escalate to CARB</h2>
-                  <button onClick={() => setShowEscalation(false)} className="text-gray-500 text-xl font-bold">✕</button>
+          <div className="fixed inset-0 z-[100] bg-navy/95 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in">
+              <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl space-y-6 border-t-[12px] border-teslaRed" onClick={e => e.stopPropagation()}>
+                  <div className="flex justify-between items-center">
+                      <h2 className="text-xl font-black text-navy uppercase tracking-tighter">CARB Escalation</h2>
+                      <button onClick={() => setShowEscalation(false)} className="text-gray-400 text-2xl">&times;</button>
+                  </div>
+
+                  {!escSubmitted ? (
+                      <div className="space-y-4">
+                          <p className="text-[10px] font-bold text-gray-500 uppercase leading-tight">We log all issues before providing official state contact details.</p>
+                          <input type="text" placeholder="YOUR NAME" value={escName} onChange={e => setEscName(e.target.value.toUpperCase())} className="w-full p-4 border-2 border-navy rounded-xl font-black outline-none" />
+                          <input type="tel" placeholder="PHONE NUMBER" value={escPhone} onChange={e => setEscPhone(e.target.value)} className="w-full p-4 border-2 border-navy rounded-xl font-black outline-none" />
+                          <textarea placeholder="DESCRIBE ISSUE..." rows={3} value={escIssue} onChange={e => setEscIssue(e.target.value.toUpperCase())} className="w-full p-4 border-2 border-navy rounded-xl font-black outline-none text-xs" />
+                          <button onClick={() => setEscSubmitted(true)} className="w-full btn-heavy py-4 rounded-xl">GET CONTACT INFO</button>
+                      </div>
+                  ) : (
+                      <div className="space-y-6 text-center">
+                          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-2xl">✓</div>
+                          <div>
+                              <p className="text-xs font-black text-navy uppercase mb-4">Official CARB Hotline</p>
+                              <a href="tel:8666343735" className="block w-full btn-heavy py-5 rounded-xl text-xl mb-4">866-634-3735</a>
+                              <a href="mailto:hdim@arb.ca.gov" className="text-xs font-black text-teslaRed underline uppercase">hdim@arb.ca.gov</a>
+                          </div>
+                          <button onClick={() => setShowEscalation(false)} className="text-[10px] font-black text-gray-400 uppercase">Return to Chat</button>
+                      </div>
+                  )}
               </div>
-
-              {!escSubmitted ? (
-                  <div className="flex-1 space-y-6">
-                      <div className="bg-yellow-50 p-4 rounded-xl border-l-4 border-yellow-400">
-                          <p className="text-sm text-yellow-800 font-bold">
-                              We will document your issue in our knowledge base before providing the official CARB contact methods.
-                          </p>
-                      </div>
-                      
-                      <div>
-                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Your Name</label>
-                          <input type="text" value={escName} onChange={e => setEscName(e.target.value)} className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600" />
-                      </div>
-                      <div>
-                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
-                          <input type="tel" value={escPhone} onChange={e => setEscPhone(e.target.value)} className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600" />
-                      </div>
-                      <div>
-                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">What is the issue?</label>
-                          <textarea rows={4} value={escIssue} onChange={e => setEscIssue(e.target.value)} className="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600" placeholder="e.g. My account is blocked but I paid..." />
-                      </div>
-                      
-                      <button onClick={submitEscalation} className="w-full py-4 bg-[#003366] text-white font-bold rounded-xl shadow-lg">
-                          SUBMIT & GET CARB CONTACT
-                      </button>
-                  </div>
-              ) : (
-                  <div className="flex-1 space-y-8 text-center pt-10">
-                      <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-3xl">✓</div>
-                      <div>
-                          <h3 className="text-xl font-bold text-[#003366] dark:text-white">Data Saved.</h3>
-                          <p className="text-gray-500">You can now contact CARB directly.</p>
-                      </div>
-                      
-                      <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
-                          <div className="text-left">
-                              <p className="text-xs font-bold text-gray-400 uppercase">Official Email</p>
-                              <a href="mailto:hdim@arb.ca.gov" className="text-lg font-bold text-[#003366] dark:text-blue-400 underline">hdim@arb.ca.gov</a>
-                          </div>
-                          <div className="text-left">
-                              <p className="text-xs font-bold text-gray-400 uppercase">Official Hotline</p>
-                              <a href="tel:8666343735" className="text-lg font-bold text-[#003366] dark:text-blue-400 underline">866-634-3735</a>
-                          </div>
-                      </div>
-
-                      <button onClick={() => setShowEscalation(false)} className="text-gray-500 font-bold hover:text-gray-800">Close</button>
-                  </div>
-              )}
           </div>
       );
   }
 
   return (
-    // Updated Height calculation for mobile safety (dvh) and reduced bottom padding
-    <div className="flex flex-col h-[calc(100dvh-150px)] bg-white dark:bg-gray-800 rounded-2xl border border-[#003366] dark:border-gray-600 overflow-hidden shadow-xl">
+    <div className="flex flex-col h-[calc(100dvh-200px)] bg-white/95 rounded-3xl border-4 border-navy overflow-hidden shadow-2xl mb-10">
       
-      {/* COMPACT HEADER */}
-      <div className="bg-[#003366] dark:bg-gray-900 text-white p-2 px-3 flex justify-between items-center shadow-md z-10">
+      {/* HEADER */}
+      <div className="bg-navy text-white p-3 px-5 flex justify-between items-center">
         <div>
-            <h2 className="font-bold text-sm leading-tight">VIN DIESEL AI</h2>
-            <div className="flex items-center gap-1">
+            <h2 className="font-black text-xs uppercase tracking-widest leading-none">VIN DIESEL AI</h2>
+            <div className="flex items-center gap-1 mt-1">
                 <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-                <span className="text-[9px] opacity-80">Online</span>
+                <span className="text-[8px] font-black opacity-70">DISPATCH READY</span>
             </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setShowEscalation(true)} className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded transition-colors">
+          <button onClick={() => setShowEscalation(true)} className="bg-teslaRed text-white text-[8px] font-black px-2 py-1 rounded-md border border-white/20 uppercase">
             CARB HELP
           </button>
-          <button onClick={handleDownloadChat} className="text-white hover:text-green-400 p-1">
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+          <button onClick={() => fileInputRef.current?.click()} className="text-white hover:text-teslaRed p-1">
+             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
           </button>
-          <button onClick={() => fileInputRef.current?.click()} className="text-white hover:text-green-400 p-1">
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-          </button>
-          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
+          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleSend("Analyze this component.", file);
+          }} />
         </div>
       </div>
 
-      {/* MESSAGES AREA */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[#f8f9fa] dark:bg-gray-800 scroll-smooth">
-        {messages.length === 1 && (
-            <div className="flex flex-wrap gap-2 mb-4 justify-center">
-                <button onClick={() => handleSend('Why is my vehicle blocked?')} className="bg-white dark:bg-gray-700 border border-gray-200 text-[#003366] dark:text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm hover:bg-gray-50">Why am I blocked?</button>
-                <button onClick={() => handleSend('How to complete a drive cycle?')} className="bg-white dark:bg-gray-700 border border-gray-200 text-[#003366] dark:text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm hover:bg-gray-50">Drive Cycle Help</button>
-                <button onClick={() => handleSend('Next Test Deadline?')} className="bg-white dark:bg-gray-700 border border-gray-200 text-[#003366] dark:text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm hover:bg-gray-50">Test Deadline?</button>
-            </div>
-        )}
-
+      {/* MESSAGES */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] p-3 rounded-xl text-sm font-medium shadow-sm leading-relaxed ${
+            <div className={`max-w-[85%] p-4 rounded-2xl shadow-sm ${
               msg.role === 'user' 
-                ? 'bg-[#003366] text-white rounded-br-none' 
-                : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-[#003366] dark:text-white rounded-bl-none'
+                ? 'bg-navy text-white rounded-br-none font-black text-xs' 
+                : 'bg-white border-2 border-navy/10 text-navy rounded-bl-none font-bold text-xs'
             }`}>
               <div className="whitespace-pre-wrap">{msg.text}</div>
-              
-              {/* Sources Display */}
               {msg.groundingUrls && msg.groundingUrls.length > 0 && (
-                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-600 text-xs">
-                  <p className="font-bold mb-1 text-gray-700 dark:text-gray-400">Sources:</p>
+                <div className="mt-3 pt-3 border-t border-navy/5 space-y-1">
+                  <p className="font-black text-[9px] uppercase text-gray-400">References:</p>
                   {msg.groundingUrls.map((url, idx) => (
-                    <a key={idx} href={url.uri} target="_blank" rel="noopener noreferrer" className="block text-[#15803d] hover:underline truncate mb-1">
-                      {url.title || url.uri}
+                    <a key={idx} href={url.uri} target="_blank" rel="noopener noreferrer" className="block text-teslaRed hover:underline truncate text-[9px] font-black">
+                      {url.title?.toUpperCase() || "LINK"}
                     </a>
                   ))}
                 </div>
-              )}
-
-              {/* Offline Indicator */}
-              {msg.isOffline && (
-                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-600">
-                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
-                         📡 Offline Mode
-                     </span>
-                  </div>
               )}
             </div>
           </div>
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white dark:bg-gray-700 p-2 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm">
+            <div className="bg-white p-3 rounded-2xl border-2 border-navy/10 animate-pulse">
               <div className="flex space-x-1">
-                <div className="w-1.5 h-1.5 bg-[#15803d] rounded-full animate-bounce"></div>
-                <div className="w-1.5 h-1.5 bg-[#15803d] rounded-full animate-bounce delay-100"></div>
-                <div className="w-1.5 h-1.5 bg-[#15803d] rounded-full animate-bounce delay-200"></div>
+                <div className="w-1.5 h-1.5 bg-navy rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-navy rounded-full opacity-50"></div>
+                <div className="w-1.5 h-1.5 bg-navy rounded-full opacity-20"></div>
               </div>
             </div>
           </div>
@@ -299,23 +226,23 @@ const ChatAssistant: React.FC = () => {
         <div ref={scrollRef} />
       </div>
 
-      {/* INPUT AREA */}
-      <div className="p-2 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      {/* INPUT */}
+      <div className="p-4 bg-white border-t-2 border-navy/5">
         <div className="relative flex items-center">
           <input
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask about compliance..."
-            className="w-full pl-4 pr-12 py-3 rounded-xl border-2 border-[#003366] bg-white dark:bg-gray-700 text-[#003366] dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-[#15803d] font-medium text-base shadow-inner"
+            placeholder="ASK COMPLIANCE..."
+            className="w-full pl-5 pr-14 py-4 rounded-2xl border-2 border-navy bg-white text-navy placeholder:text-gray-300 font-black text-sm outline-none focus:border-teslaRed shadow-inner"
           />
           <button 
             onClick={() => handleSend()}
             disabled={loading}
-            className="absolute right-2 p-2 bg-[#003366] text-white rounded-lg hover:bg-[#15803d] disabled:opacity-50 transition-colors"
+            className="absolute right-2 p-2 bg-navy text-white rounded-xl active:scale-95 transition-all"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 12h14M12 5l7 7-7 7" /></svg>
           </button>
         </div>
       </div>

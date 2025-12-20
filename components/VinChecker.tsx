@@ -9,6 +9,15 @@ interface Props {
   onInstallApp: () => void;
 }
 
+const NORTH_CA_COUNTIES = [
+  "ALAMEDA", "ALPINE", "AMADOR", "BUTTE", "CALAVERAS", "COLUSA", "CONTRA COSTA", "DEL NORTE", 
+  "EL DORADO", "FRESNO", "GLENN", "HUMBOLDT", "KINGS", "LAKE", "LASSEN", "MADERA", "MARIN", 
+  "MARIPOSA", "MENDOCINO", "MERCED", "MODOC", "MONO", "MONTEREY", "NAPA", "NEVADA", "PLACER", 
+  "PLUMAS", "SACRAMENTO", "SAN BENITO", "SAN FRANCISCO", "SAN JOAQUIN", "SAN MATEO", 
+  "SANTA CLARA", "SANTA CRUZ", "SHASTA", "SIERRA", "SISKIYOU", "SOLANO", "SONOMA", 
+  "STANISLAUS", "SUTTER", "TEHAMA", "TRINITY", "TULARE", "TUOLUMNE", "YOLO", "YUBA"
+];
+
 const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigateEducation, onInstallApp }) => {
   const [inputVal, setInputVal] = useState('');
   const [zipCode, setZipCode] = useState('');
@@ -19,6 +28,11 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
   const [countyResult, setCountyResult] = useState<string | null>(null);
   
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const isNorCal = (county: string) => {
+      const clean = county.toUpperCase().replace(' COUNTY', '').trim();
+      return NORTH_CA_COUNTIES.includes(clean);
+  };
 
   const handleScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,14 +85,14 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
     <div className="w-full max-w-md mx-auto space-y-4 animate-in fade-in duration-500">
       
       {/* 1. PRIMARY: SCAN & MANUAL INPUT */}
-      <div className="bg-white/95 dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-white/30 p-6 space-y-4">
+      <div className="bg-white/95 dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border-4 border-navy p-6 space-y-4">
           <button 
             onClick={() => cameraInputRef.current?.click()} 
             disabled={loading} 
-            className="w-full btn-heavy py-7 rounded-2xl flex flex-col items-center gap-1"
+            className="w-full btn-heavy py-8 rounded-2xl flex flex-col items-center gap-1 hover:bg-gray-50 active:scale-[0.98] transition-all"
           >
-              <span className="text-3xl">📸</span>
-              <span className="text-xl tracking-tighter">{loading ? 'SCANNING...' : 'SCAN VIN / BARCODE'}</span>
+              <span className="text-4xl mb-1">📸</span>
+              <span className="text-xl tracking-tighter font-black">{loading ? 'ANALYZING VIN...' : 'SCAN TRUCK VIN'}</span>
           </button>
           <input type="file" ref={cameraInputRef} onChange={handleScan} accept="image/*" capture="environment" className="hidden" />
 
@@ -88,17 +102,18 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
                     type="text" 
                     value={inputVal} 
                     onChange={(e) => setInputVal(e.target.value.toUpperCase())} 
-                    placeholder={searchMode === 'VIN' ? "ENTER VIN" : "ENTER TRUCRS ID"} 
+                    placeholder={searchMode === 'VIN' ? "ENTER VIN" : "TRUCRS ID"} 
                     className="flex-1 p-4 bg-gray-50 dark:bg-gray-700 dark:text-white border-2 border-navy rounded-xl text-center font-mono text-lg font-bold outline-none focus:border-teslaRed transition-all" 
                   />
-                  <button onClick={() => setSearchMode(searchMode === 'VIN' ? 'OWNER' : 'VIN')} className="px-4 btn-heavy rounded-xl text-[10px]">
-                      {searchMode === 'VIN' ? 'ID' : 'VIN'}
+                  <button onClick={() => setSearchMode(searchMode === 'VIN' ? 'OWNER' : 'VIN')} className="px-3 btn-heavy rounded-xl text-[10px] flex flex-col items-center justify-center leading-tight">
+                      <span className="opacity-50">MODE</span>
+                      <span className="font-black">{searchMode === 'VIN' ? 'VIN' : 'ID'}</span>
                   </button>
               </div>
               
               <button 
                 onClick={() => handleComplianceCheck(inputVal, searchMode)} 
-                className="w-full btn-heavy py-4 rounded-xl tracking-tighter"
+                className="w-full btn-heavy py-5 rounded-xl text-lg tracking-tighter shadow-md"
               >
                 CHECK CARB STATUS
               </button>
@@ -107,7 +122,7 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
 
       {/* 2. REVENUE: FIND A TESTER */}
       <div className="bg-white/95 dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border-4 border-navy">
-          <div className="bg-navy p-2 text-center text-[10px] text-white font-black uppercase tracking-widest">Find Certified Mobile Tester</div>
+          <div className="bg-navy p-2 text-center text-[10px] text-white font-black uppercase tracking-widest">Immediate Dispatch Certified Testers</div>
           <div className="p-6 space-y-4">
               <div className="flex gap-2">
                   <input 
@@ -115,66 +130,59 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
                     pattern="[0-9]*"
                     value={zipCode} 
                     onChange={e => setZipCode(e.target.value)} 
-                    placeholder="ENTER ZIP" 
+                    placeholder="ZIP CODE" 
                     className="flex-1 p-4 bg-gray-50 dark:bg-gray-700 dark:text-white border-2 border-navy rounded-xl font-black text-center outline-none focus:border-teslaRed"
                   />
-                  <button onClick={handleFindTester} disabled={loading} className="px-6 btn-heavy rounded-xl text-xs">GO</button>
+                  <button onClick={handleFindTester} disabled={loading} className="px-8 btn-heavy rounded-xl text-sm font-black">FIND</button>
               </div>
-              <p className="text-[10px] text-center text-gray-500 font-bold uppercase tracking-tight">Immediate Mobile Dispatch Statewide CA</p>
+              <div className="flex items-center justify-center gap-4 py-1">
+                  <span className="text-[9px] font-black text-gray-400 uppercase">● Mobile Testing</span>
+                  <span className="text-[9px] font-black text-gray-400 uppercase">● Same Day</span>
+                  <span className="text-[9px] font-black text-gray-400 uppercase">● CA Licensed</span>
+              </div>
           </div>
       </div>
 
-      {/* 3. EDUCATION: ROADMAP */}
-      <div onClick={onNavigateEducation} className="bg-white/95 p-4 rounded-3xl shadow-lg flex items-center justify-between cursor-pointer border-4 border-navy">
-        <div className="flex items-center gap-3">
-          <div className="bg-teslaRed p-2 rounded-xl text-lg animate-bounce text-white shadow-sm">📢</div>
-          <div>
-            <h4 className="font-black text-navy text-xs uppercase tracking-tight">Compliance Roadmap</h4>
-            <p className="text-[10px] text-gray-500 font-bold">The state isn't talking, but we are.</p>
-          </div>
-        </div>
-        <span className="text-xl text-navy">›</span>
-      </div>
-
-      {/* 4. NEW: QUICK AI CHAT SECTION */}
+      {/* 3. QUICK AI CHAT SECTION */}
       <div className="bg-navy p-6 rounded-3xl shadow-2xl border-2 border-white/20">
           <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">🤖</span>
-              <h4 className="text-white font-black text-xs uppercase tracking-widest">Quick AI Help</h4>
+              <h4 className="text-white font-black text-xs uppercase tracking-widest">Ask VIN DIESEL AI</h4>
           </div>
           <form onSubmit={handleQuickChatSubmit} className="relative">
               <input 
                 type="text" 
                 value={quickQuery}
                 onChange={(e) => setQuickQuery(e.target.value)}
-                placeholder="Ask a compliance question..."
-                className="w-full p-4 pr-12 rounded-2xl bg-white/10 border-2 border-white/30 text-white placeholder:text-white/50 text-sm font-bold focus:outline-none focus:border-white transition-all"
+                placeholder="Ex: Why is my reg blocked?"
+                className="w-full p-4 pr-12 rounded-2xl bg-white/10 border-2 border-white/30 text-white placeholder:text-white/40 text-sm font-bold focus:outline-none focus:border-white transition-all"
               />
-              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-navy p-2 rounded-xl font-black text-xs">
-                  GO
+              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-navy p-2 rounded-xl font-black text-xs hover:bg-gray-100">
+                  SEND
               </button>
           </form>
-          <p className="text-[9px] text-white/50 mt-2 font-bold uppercase text-center tracking-tighter">Powered by VIN DIESEL Regulatory Intelligence</p>
       </div>
 
       {/* MODAL: TESTER DISPATCH */}
       {countyResult && (
           <div className="fixed inset-0 z-[100] bg-navy/95 backdrop-blur-md flex items-center justify-center p-6 animate-in zoom-in duration-300" onClick={() => setCountyResult(null)}>
-              <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 w-full max-w-sm shadow-2xl space-y-8 text-center border-t-[12px] border-teslaRed" onClick={e => e.stopPropagation()}>
-                  <div className="w-24 h-24 bg-teslaRed/10 text-teslaRed rounded-full flex items-center justify-center mx-auto text-5xl shadow-inner border border-teslaRed/20">🚛</div>
+              <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 w-full max-sm:p-6 max-w-sm shadow-2xl space-y-8 text-center border-t-[12px] border-teslaRed" onClick={e => e.stopPropagation()}>
+                  <div className="w-20 h-20 bg-teslaRed/10 text-teslaRed rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner border border-teslaRed/20">🚛</div>
                   
                   <div className="space-y-2">
-                    <h3 className="font-black text-3xl text-navy dark:text-white uppercase leading-none tracking-tighter">Tester Found!</h3>
-                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Dispatch Area:</p>
-                    <p className="text-2xl font-black text-navy dark:text-white dark:bg-gray-700 py-3 rounded-2xl border border-navy uppercase tracking-tight">{countyResult}</p>
+                    <h3 className="font-black text-2xl text-navy dark:text-white uppercase leading-none tracking-tighter">Tester Found!</h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Dispatch Area:</p>
+                    <p className="text-xl font-black text-navy dark:text-white dark:bg-gray-700 py-3 rounded-2xl border-2 border-navy uppercase tracking-tight">{countyResult}</p>
+                    {isNorCal(countyResult) && (
+                        <p className="text-[9px] font-black text-teslaRed uppercase animate-pulse">Verified NorCal CARB Mobile Partner</p>
+                    )}
                   </div>
                   
                   <div className="space-y-4">
-                      <a href="tel:6173596953" className="block w-full py-6 btn-heavy rounded-[1.5rem] shadow-xl text-2xl animate-pulse">
-                          <span className="block text-[10px] tracking-widest opacity-70 mb-1">TAP TO CALL NOW</span>
+                      <a href="tel:6173596953" className="block w-full py-6 btn-heavy rounded-[1.5rem] shadow-xl text-xl animate-pulse">
                           617-359-6953
                       </a>
-                      <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none">24/7 Priority Support • Fast Response</p>
+                      <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest leading-none">Tap to Call Now for immediate test booking.</p>
                   </div>
                   
                   <button onClick={() => setCountyResult(null)} className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] pt-4 hover:text-navy transition-colors">Close Window</button>
@@ -188,12 +196,11 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
               <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 border-4 border-navy" onClick={e => e.stopPropagation()}>
                   <h3 className="font-black text-xl text-navy dark:text-white text-center uppercase tracking-tight">VIN Detected</h3>
                   <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl font-mono text-center font-bold text-lg text-navy dark:text-white border-2 border-navy shadow-inner">{scanResult.vin}</div>
-                  <p className="text-xs text-gray-500 text-center">{scanResult.details}</p>
+                  <p className="text-xs text-gray-500 text-center uppercase font-bold">{scanResult.details}</p>
                   
                   <div className="space-y-3">
-                      <button onClick={() => { handleComplianceCheck(scanResult.vin, 'VIN'); setScanResult(null); }} className="w-full py-4 btn-heavy rounded-xl">CONFIRM & CHECK STATUS</button>
-                      <a href="tel:6173596953" className="block w-full py-3 bg-navy text-white text-center font-black rounded-xl text-sm border-b-4 border-black/20">CALL FOR IMMEDIATE TEST</a>
-                      <button onClick={() => setScanResult(null)} className="w-full py-2 text-xs text-gray-400 font-bold uppercase">RE-SCAN</button>
+                      <button onClick={() => { handleComplianceCheck(scanResult.vin, 'VIN'); setScanResult(null); }} className="w-full py-4 btn-heavy rounded-xl text-lg">CHECK STATUS</button>
+                      <button onClick={() => setScanResult(null)} className="w-full py-2 text-[10px] text-gray-400 font-black uppercase">RE-SCAN</button>
                   </div>
               </div>
           </div>

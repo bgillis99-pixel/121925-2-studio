@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { RegulatoryMilestone } from '../types';
 
 const MILESTONES: RegulatoryMilestone[] = [
@@ -9,81 +9,143 @@ const MILESTONES: RegulatoryMilestone[] = [
 ];
 
 const EducationCenter: React.FC = () => {
+  const [showHealthCheck, setShowHealthCheck] = useState(false);
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
-      <div className="bg-navy p-6 rounded-3xl text-white shadow-xl relative overflow-hidden">
-        <div className="absolute -right-8 -top-8 w-32 h-32 bg-green/20 rounded-full blur-3xl"></div>
-        <h2 className="text-3xl font-black mb-2">Knowledge Base</h2>
-        <p className="text-green-300 font-bold text-sm">The state isn't talking, but we are.</p>
+      {/* Header Card */}
+      <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-3xl shadow-xl border-4 border-navy relative overflow-hidden">
+        <h2 className="text-3xl font-black text-navy dark:text-white uppercase leading-none mb-2">Tester's Truth</h2>
+        <p className="text-teslaRed font-black text-xs uppercase tracking-widest">The state isn't proactive. We are.</p>
+        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-teslaRed/5 rounded-full blur-2xl"></div>
       </div>
 
-      <section className="px-1">
-        <h3 className="text-navy dark:text-white font-black text-xl mb-4 flex items-center gap-2">
-          <span>📅</span> Regulatory Roadmap
-        </h3>
+      {/* PROACTIVE HEALTH CHECK BUTTON (Moved from Home) */}
+      <div 
+        onClick={() => setShowHealthCheck(true)}
+        className="bg-vibrantGreen p-6 rounded-[2rem] shadow-2xl border-4 border-navy cursor-pointer active:scale-95 transition-all flex items-center justify-between"
+      >
+          <div className="flex items-center gap-4">
+              <span className="text-3xl bg-white p-2 rounded-2xl shadow-inner">⚡</span>
+              <div>
+                  <h4 className="font-black text-navy text-sm uppercase leading-none mb-1">Health Check</h4>
+                  <p className="text-[10px] text-navy font-bold uppercase opacity-70">Catch blocks before the DMV does.</p>
+              </div>
+          </div>
+          <span className="text-navy font-black text-2xl tracking-tighter">START</span>
+      </div>
+
+      {/* THE STATE VS REALITY SECTION */}
+      <section className="bg-teslaRed p-6 rounded-3xl text-white shadow-2xl border-4 border-white/20">
+        <h3 className="text-xl font-black mb-4 uppercase tracking-tighter">The State vs. Reality</h3>
         <div className="space-y-4">
+            <div className="bg-white/10 p-4 rounded-2xl border border-white/20">
+                <p className="text-[10px] font-black text-white/60 uppercase">The State Claims:</p>
+                <p className="text-sm font-bold">"We will notify you of compliance requirements."</p>
+                <hr className="my-2 border-white/10" />
+                <p className="text-[10px] font-black text-vibrantGreen uppercase">The Reality (Tester Insight):</p>
+                <p className="text-sm font-bold text-white">Registration holds often appear WITHOUT warning. If you wait for a letter, you're already late. Check your status 90 days before renewal.</p>
+            </div>
+            <div className="bg-white/10 p-4 rounded-2xl border border-white/20">
+                <p className="text-[10px] font-black text-white/60 uppercase">The State Claims:</p>
+                <p className="text-sm font-bold">"Just pay the $30 fee to stay compliant."</p>
+                <hr className="my-2 border-white/10" />
+                <p className="text-[10px] font-black text-vibrantGreen uppercase">The Reality (Tester Insight):</p>
+                <p className="text-sm font-bold text-white">The fee is just the ticket to play. Without a passing Smoke/OBD test uploaded to the VIS portal, that $30 won't clear your DMV block.</p>
+            </div>
+        </div>
+      </section>
+
+      {/* CONFUSING LETTER DECODER */}
+      <section className="bg-white/95 dark:bg-gray-800 p-6 rounded-3xl shadow-xl border-4 border-navy">
+        <h3 className="text-navy dark:text-white font-black text-lg uppercase mb-4 tracking-tighter">Decode That Letter</h3>
+        <div className="space-y-3">
+          {[
+            { tag: "NON-COMPLIANCE NOTICE", mean: "Your truck is identified in the system but missing either the $30 fee or a current test result." },
+            { tag: "DMV HOLD ADVISORY", mean: "You have less than 60 days to get a certified test result into the portal or your registration will be frozen." },
+            { tag: "EFN INCONSISTENCY", mean: "Your engine family name doesn't match the one on file. Physical inspection required." }
+          ].map((item, i) => (
+            <div key={i} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl border-2 border-navy/10">
+                <span className="text-[9px] font-black bg-navy text-white px-2 py-0.5 rounded uppercase">{item.tag}</span>
+                <p className="text-[11px] font-bold text-navy dark:text-gray-200 mt-2">{item.mean}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Regulatory Roadmap */}
+      <section className="space-y-4">
+        <h3 className="text-white font-black text-xl uppercase tracking-tighter flex items-center gap-2 drop-shadow-md">
+          <span>📅</span> Compliance Timeline
+        </h3>
+        <div className="space-y-3">
           {MILESTONES.map((m, idx) => (
-            <div key={idx} className={`p-4 rounded-2xl border-2 flex gap-4 items-center ${
+            <div key={idx} className={`p-5 rounded-2xl border-4 flex gap-4 items-center transition-all ${
               m.status === 'current' 
-                ? 'bg-green/5 border-green shadow-md' 
-                : m.status === 'past' 
-                  ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-60'
-                  : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 border-dashed'
+                ? 'bg-white dark:bg-gray-800 border-navy shadow-xl scale-105 z-10' 
+                : 'bg-white/80 dark:bg-gray-800/80 border-navy/30 opacity-80'
             }`}>
-              <div className={`w-24 text-center font-black text-xs px-2 py-1 rounded-full ${
-                m.status === 'current' ? 'bg-green text-white' : 'bg-navy text-white'
+              <div className={`w-24 text-center font-black text-[10px] px-2 py-2 rounded-xl border-2 ${
+                m.status === 'current' ? 'bg-teslaRed text-white border-navy' : 'bg-navy text-white border-white/20'
               }`}>
                 {m.date}
               </div>
-              <div>
-                <h4 className="font-bold text-navy dark:text-white text-sm">{m.title}</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400">{m.description}</p>
+              <div className="flex-1">
+                <h4 className="font-black text-navy dark:text-white uppercase text-sm leading-tight">{m.title}</h4>
+                <p className="text-[10px] font-bold text-gray-600 dark:text-gray-400 mt-1 leading-snug">{m.description}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <h3 className="text-navy dark:text-white font-black text-lg mb-4">Proactive Compliance Tips</h3>
-        <div className="space-y-4">
-          {[
-            { q: "What is GVWR?", a: "Gross Vehicle Weight Rating. If it's over 14,000 lbs and diesel, you're in the program." },
-            { q: "Drive Cycle Issues?", a: "If you clear codes, you must drive ~50-100 miles for monitors to set before testing." },
-            { q: "Annual Fee vs Test?", a: "The $30 fee goes to the state. The test fee goes to the tester. You need BOTH for registration." }
-          ].map((tip, i) => (
-            <div key={i} className="group cursor-pointer">
-              <details className="outline-none">
-                <summary className="list-none flex justify-between items-center font-bold text-sm text-navy dark:text-white py-2">
-                  {tip.q}
-                  <span className="text-green text-xl group-open:rotate-180 transition-transform">↓</span>
-                </summary>
-                <p className="text-xs text-gray-600 dark:text-gray-400 pb-2 leading-relaxed">
-                  {tip.a}
-                </p>
-              </details>
-              <div className="h-px bg-gray-100 dark:bg-gray-700 w-full mt-2"></div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* MODAL: PROACTIVE HEALTH CHECK */}
+      {showHealthCheck && (
+          <div className="fixed inset-0 z-[110] bg-navy/95 backdrop-blur-lg flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+              <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl space-y-6 border-t-[12px] border-vibrantGreen relative" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => setShowHealthCheck(false)} className="absolute top-4 right-4 text-gray-400 text-2xl font-black">&times;</button>
+                  <div className="text-center space-y-2">
+                    <h3 className="text-2xl font-black text-navy dark:text-white uppercase tracking-tighter">Health Check</h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Answer 3 questions for instant diagnosis</p>
+                  </div>
+                  
+                  <div className="space-y-6 pt-4">
+                      {[
+                          { q: "Have you paid your $30 CARB fee for 2025?", icon: "💰" },
+                          { q: "Was your last smoke/OBD test within 90 days?", icon: "💨" },
+                          { q: "Is your DPF light currently off?", icon: "🚨" }
+                      ].map((item, i) => (
+                          <div key={i} className="flex flex-col gap-2">
+                              <p className="text-xs font-black text-navy dark:text-white flex items-center gap-2">
+                                  <span>{item.icon}</span> {item.q}
+                              </p>
+                              <div className="flex gap-2">
+                                  <button onClick={() => {}} className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 text-xs font-black hover:bg-vibrantGreen hover:text-white transition-all">YES</button>
+                                  <button onClick={() => {}} className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 text-xs font-black hover:bg-teslaRed hover:text-white transition-all">NO</button>
+                              </div>
+                          </div>
+                      ))}
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                        alert("Diagnosis Required: You may have an active hold. Call 617-359-6953 to verify with a tester.");
+                        setShowHealthCheck(false);
+                    }}
+                    className="w-full btn-heavy py-5 rounded-2xl shadow-lg mt-4 text-lg"
+                  >
+                      GET DIAGNOSIS
+                  </button>
+              </div>
+          </div>
+      )}
 
-      <section className="bg-gradient-to-br from-green to-navy p-6 rounded-3xl text-white">
-        <h3 className="text-xl font-black mb-2">Tester Insights</h3>
-        <p className="text-sm opacity-90 mb-4">Common mistakes our testers see daily:</p>
-        <ul className="text-xs space-y-3 font-medium">
-          <li className="flex gap-2"><span className="text-yellow-400">⚠️</span> **Engine Tags:** Many are missing or unreadable. Without an EFN (Engine Family Name), we cannot submit a test.</li>
-          <li className="flex gap-2"><span className="text-yellow-400">⚠️</span> **Registration Matching:** Ensure your VIN on the test matches your registration card EXACTLY (no Os for 0s).</li>
-          <li className="flex gap-2"><span className="text-yellow-400">⚠️</span> **Deadlines:** Tests must be submitted within 90 days BEFORE your registration expires.</li>
-        </ul>
-      </section>
-
-      <div className="text-center p-4">
+      <div className="text-center pt-4">
         <button 
-          onClick={() => window.open('https://ww2.arb.ca.gov/our-work/programs/clean-truck-check', '_blank')}
-          className="text-xs font-bold text-navy dark:text-blue-400 underline"
+          onClick={() => window.open('https://ww2.arb.ca.gov/our-work/programs/inspection-and-maintenance-program/vehicle-owner-information', '_blank')}
+          className="btn-heavy py-4 px-8 rounded-2xl text-[10px]"
         >
-          View Official State Resources
+          OFFICIAL STATE RESOURCES
         </button>
       </div>
     </div>
