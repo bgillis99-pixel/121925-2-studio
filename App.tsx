@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import VinChecker from './components/VinChecker';
 import ChatAssistant from './components/ChatAssistant';
@@ -113,14 +112,19 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900' : 'bg-teslaRed'} font-sans text-navy dark:text-gray-100 overflow-x-hidden transition-colors duration-300`}>
+    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900' : 'bg-navy'} font-sans text-navy dark:text-gray-100 overflow-x-hidden transition-colors duration-300`}>
       
       {/* TOP HEADER */}
-      <header className="bg-teslaRed dark:bg-gray-800 py-3 px-4 shadow-md sticky top-0 z-40 border-b border-white/10 flex flex-col gap-3 pt-safe">
+      <header className="bg-navy dark:bg-gray-800 py-3 px-4 shadow-md sticky top-0 z-40 border-b border-white/10 flex flex-col gap-3 pt-safe">
         <div className="flex justify-between items-center">
-            <div className="flex flex-col cursor-pointer" onClick={() => setCurrentView(AppView.HOME)}>
-                <h1 className="text-xl font-black tracking-tighter text-white uppercase leading-none">CTC Compliance Coach</h1>
-                <p className="text-white/80 text-[10px] font-black tracking-widest uppercase">Clean Truck Check Support</p>
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView(AppView.HOME)}>
+                <div className="w-10 h-10 bg-white rounded-lg p-1 shadow-inner">
+                    <img src="/logo.svg" alt="CTC Logo" className="w-full h-full" />
+                </div>
+                <div className="flex flex-col">
+                    <h1 className="text-xl font-black tracking-tighter text-white uppercase leading-none">CTC Compliance Coach</h1>
+                    <p className="text-white/80 text-[10px] font-black tracking-widest uppercase">Clean Truck Check Support</p>
+                </div>
             </div>
             <div className="text-[10px] font-black bg-white/10 px-3 py-1 rounded-full text-white">
                 DISPATCH: <span className="text-vibrantGreen uppercase animate-pulse">Online</span>
@@ -169,11 +173,14 @@ const App: React.FC = () => {
                 <div className="pt-2">
                   <ActionButtons />
                 </div>
-                <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose pt-2">
-                    Statewide Compliance & Testing<br/>
-                    Serving All 58 CA Counties<br/>
-                    © 2026 CTC COMPLIANCE COACH
-                </p>
+                <div className="flex flex-col items-center gap-2">
+                  <img src="/logo.svg" alt="CTC Logo" className="w-8 h-8" />
+                  <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose">
+                      Statewide Compliance & Testing<br/>
+                      Serving All 58 CA Counties<br/>
+                      © 2026 CTC COMPLIANCE COACH
+                  </p>
+                </div>
             </div>
         </div>
       </main>
@@ -188,10 +195,10 @@ const App: React.FC = () => {
             { id: AppView.PROFILE, icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z", label: "PROFILE" }
         ].map(btn => (
             <button key={btn.id} onClick={() => setCurrentView(btn.id as AppView)} className={`flex flex-col items-center justify-center flex-1 h-full pb-4 transition-all duration-200 ${currentView === btn.id ? '-translate-y-2' : ''}`}>
-                <div className={`p-2 rounded-2xl mb-1 transition-colors ${currentView === btn.id ? 'bg-teslaRed text-white shadow-lg' : 'text-gray-700 dark:text-gray-300'}`}>
+                <div className={`p-2 rounded-2xl mb-1 transition-colors ${currentView === btn.id ? 'bg-navy text-white shadow-lg' : 'text-gray-700 dark:text-gray-300'}`}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={btn.icon} /></svg>
                 </div>
-                <span className={`text-[8px] font-black tracking-tighter uppercase ${currentView === btn.id ? 'text-teslaRed dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>{btn.label}</span>
+                <span className={`text-[8px] font-black tracking-tighter uppercase ${currentView === btn.id ? 'text-navy dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>{btn.label}</span>
             </button>
         ))}
       </nav>

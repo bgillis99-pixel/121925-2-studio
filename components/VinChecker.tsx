@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { extractVinFromImage, lookupCountyByZip } from '../services/geminiService';
 
@@ -112,7 +111,7 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
                         value={inputVal} 
                         onChange={handleVinChange} 
                         placeholder={searchMode === 'VIN' ? "ENTER VIN" : "TRUCRS ID"} 
-                        className="flex-1 p-4 bg-gray-50 dark:bg-gray-700 dark:text-white border-2 border-navy rounded-xl text-center font-mono text-lg font-bold outline-none focus:border-teslaRed transition-all" 
+                        className="flex-1 p-4 bg-gray-50 dark:bg-gray-700 dark:text-white border-2 border-navy rounded-xl text-center font-mono text-lg font-bold outline-none focus:border-navy/50 transition-all" 
                       />
                       <button onClick={() => setSearchMode(searchMode === 'VIN' ? 'OWNER' : 'VIN')} className="px-3 btn-heavy rounded-xl text-[10px] flex flex-col items-center justify-center leading-tight">
                           <span className="opacity-50">MODE</span>
@@ -121,7 +120,7 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
                   </div>
                   {searchMode === 'VIN' && (
                       <div className="flex justify-between items-start mt-2 px-1">
-                          <p className="text-[9px] font-black text-teslaRed uppercase leading-tight">
+                          <p className="text-[9px] font-black text-navy dark:text-blue-400 uppercase leading-tight">
                               ISO 3779 Standard (since 1981):<br/>No O, I, or Q characters allowed
                           </p>
                           <span className={`text-[10px] font-black px-2 py-0.5 rounded ${inputVal.length === 17 ? 'bg-vibrantGreen text-navy' : 'text-gray-400'}`}>
@@ -151,7 +150,7 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
                     value={zipCode} 
                     onChange={e => setZipCode(e.target.value)} 
                     placeholder="ZIP CODE" 
-                    className="flex-1 p-4 bg-gray-50 dark:bg-gray-700 dark:text-white border-2 border-navy rounded-xl font-black text-center outline-none focus:border-teslaRed text-lg"
+                    className="flex-1 p-4 bg-gray-50 dark:bg-gray-700 dark:text-white border-2 border-navy rounded-xl font-black text-center outline-none focus:border-navy/50 text-lg"
                   />
                   <button onClick={handleFindTester} disabled={loading} className="px-8 btn-heavy rounded-xl text-sm font-black shadow-lg">FIND</button>
               </div>
@@ -185,15 +184,17 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
       {/* MODAL: TESTER DISPATCH */}
       {countyResult && (
           <div className="fixed inset-0 z-[100] bg-navy/95 backdrop-blur-md flex items-center justify-center p-6 animate-in zoom-in duration-300" onClick={() => setCountyResult(null)}>
-              <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 w-full max-sm:p-6 max-w-sm shadow-2xl space-y-8 text-center border-t-[12px] border-teslaRed" onClick={e => e.stopPropagation()}>
-                  <div className="w-20 h-20 bg-teslaRed/10 text-teslaRed rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner border border-teslaRed/20">🚛</div>
+              <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 w-full max-sm:p-6 max-w-sm shadow-2xl space-y-8 text-center border-t-[12px] border-navy transition-colors" onClick={e => e.stopPropagation()}>
+                  <div className="w-20 h-20 bg-navy/10 text-navy rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner border border-navy/20">
+                    <img src="/logo.svg" alt="CTC Logo" className="w-12 h-12" />
+                  </div>
                   
                   <div className="space-y-2">
                     <h3 className="font-black text-2xl text-navy dark:text-white uppercase leading-none tracking-tighter">Tester Found!</h3>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Dispatch Area:</p>
                     <p className="text-xl font-black text-navy dark:text-white dark:bg-gray-700 py-3 rounded-2xl border-2 border-navy uppercase tracking-tight">{countyResult}</p>
                     {isNorCal(countyResult) && (
-                        <p className="text-[9px] font-black text-teslaRed uppercase animate-pulse">Verified NorCal CARB Mobile Partner</p>
+                        <p className="text-[9px] font-black text-navy dark:text-blue-400 uppercase animate-pulse">Verified NorCal CARB Mobile Partner</p>
                     )}
                   </div>
                   
