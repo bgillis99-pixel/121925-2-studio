@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import VinChecker from './components/VinChecker';
 import ChatAssistant from './components/ChatAssistant';
@@ -151,7 +150,7 @@ const App: React.FC = () => {
         )}
         {currentView === AppView.ADMIN && <AdminView />}
         
-        {/* RESTRUCTURED UTILITY BOX FOOTER */}
+        {/* RESTRUCTURED UTILITY BOX FOOTER - REMOVED BOLD BLUE BRANDING */}
         <div className="mt-12 space-y-6 text-center pb-24 border-t border-white/20 pt-10">
             <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-[2.5rem] shadow-2xl border-4 border-navy space-y-6 max-w-sm mx-auto">
                 <div className="grid grid-cols-2 gap-2">
@@ -162,8 +161,11 @@ const App: React.FC = () => {
                         <span>📋</span> CHECKLISTS
                     </button>
                 </div>
-                <ActionButtons />
-                <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose">
+                {/* CALL/SHARE/DOWNLOAD Integration */}
+                <div className="pt-2">
+                  <ActionButtons />
+                </div>
+                <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose pt-2">
                     Statewide Compliance & Testing<br/>
                     Serving All 58 CA Counties<br/>
                     © 2026 MOBILE CARB CHECK

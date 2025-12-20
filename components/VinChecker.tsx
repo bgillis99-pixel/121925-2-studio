@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { extractVinFromImage, lookupCountyByZip } from '../services/geminiService';
 
@@ -92,7 +91,7 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
   return (
     <div className="w-full max-w-md mx-auto space-y-4 animate-in fade-in duration-500">
       
-      {/* 1. TESTER DISPATCH (REVENUE) */}
+      {/* 1. TESTER DISPATCH (REVENUE) - MOVED TO TOP */}
       <div className="bg-white/95 dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border-4 border-navy">
           <div className="bg-vibrantGreen p-2 text-center text-[10px] text-navy font-black uppercase tracking-widest">Immediate Dispatch Certified Testers</div>
           <div className="p-6 space-y-4">
@@ -163,7 +162,7 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
           </div>
       </div>
 
-      {/* 3. UNIFORM AI COMPLIANCE SECTION */}
+      {/* 3. UNIFORM AI COMPLIANCE SECTION - REFINED */}
       <div className="bg-navy p-6 rounded-3xl shadow-2xl border-2 border-white/20">
           <div className="mb-4">
               <h4 className="text-white font-black text-[11px] uppercase tracking-[0.2em] text-center border-b border-white/10 pb-2">ASK COMPLIANCE QUESTION</h4>

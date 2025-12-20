@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { MODEL_NAMES } from "../constants";
 import { Lead, ImageGenerationConfig, RegistrationData } from "../types";
@@ -27,7 +26,7 @@ You are VIN DIESEL, a specialized AI Compliance Officer and Certified Mobile Tes
 Your mission is to be the PROACTIVE guide that the state fails to be. 
 Tone: Honest, Urgent, Expert, and Supportive. 
 
-IMPORTANT TERMINOLOGY: Use "Registration Hold" instead of "Blocked". Registration holds are the primary issue users face.
+IMPORTANT TERMINOLOGY: Use "Registration Hold" or "Held" instead of "Blocked". Registration holds are the primary issue users face.
 
 Core Knowledge:
 1. Registration Holds: Usually caused by missing $30 annual fees or tests performed outside the 90-day window.

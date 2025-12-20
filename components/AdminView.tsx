@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { scoutTruckLead, parseRegistrationPhoto, SYSTEM_INSTRUCTION } from '../services/geminiService';
 import { Lead, RegistrationData, Submission } from '../types';
@@ -288,7 +287,7 @@ const AdminView: React.FC = () => {
 
       {/* FOOTER */}
       <div className="p-4 bg-gray-50 dark:bg-gray-900 border-t-2 border-navy/10 text-center">
-         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Administrator Access • MLB Marketing LLC Internal</p>
+         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Administrator Access • Secure Environment</p>
       </div>
     </div>
   );
