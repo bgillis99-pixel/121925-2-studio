@@ -20,7 +20,7 @@ const EducationCenter: React.FC = () => {
         <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-teslaRed/5 rounded-full blur-2xl"></div>
       </div>
 
-      {/* PROACTIVE HEALTH CHECK BUTTON (Moved from Home) */}
+      {/* PROACTIVE HEALTH CHECK BUTTON */}
       <div 
         onClick={() => setShowHealthCheck(true)}
         className="bg-vibrantGreen p-6 rounded-[2rem] shadow-2xl border-4 border-navy cursor-pointer active:scale-95 transition-all flex items-center justify-between"
@@ -29,7 +29,7 @@ const EducationCenter: React.FC = () => {
               <span className="text-3xl bg-white p-2 rounded-2xl shadow-inner">⚡</span>
               <div>
                   <h4 className="font-black text-navy text-sm uppercase leading-none mb-1">Health Check</h4>
-                  <p className="text-[10px] text-navy font-bold uppercase opacity-70">Catch blocks before the DMV does.</p>
+                  <p className="text-[10px] text-navy font-bold uppercase opacity-70">Catch holds before the DMV does.</p>
               </div>
           </div>
           <span className="text-navy font-black text-2xl tracking-tighter">START</span>
@@ -51,7 +51,7 @@ const EducationCenter: React.FC = () => {
                 <p className="text-sm font-bold">"Just pay the $30 fee to stay compliant."</p>
                 <hr className="my-2 border-white/10" />
                 <p className="text-[10px] font-black text-vibrantGreen uppercase">The Reality (Tester Insight):</p>
-                <p className="text-sm font-bold text-white">The fee is just the ticket to play. Without a passing Smoke/OBD test uploaded to the VIS portal, that $30 won't clear your DMV block.</p>
+                <p className="text-sm font-bold text-white">The fee is just the ticket to play. Without a passing Smoke/OBD test uploaded to the VIS portal, that $30 won't clear your DMV hold.</p>
             </div>
         </div>
       </section>
@@ -129,7 +129,7 @@ const EducationCenter: React.FC = () => {
                   
                   <button 
                     onClick={() => {
-                        alert("Diagnosis Required: You may have an active hold. Call 617-359-6953 to verify with a tester.");
+                        alert("Diagnosis Required: You likely have an active hold. Call 617-359-6953 to verify with a tester.");
                         setShowHealthCheck(false);
                     }}
                     className="w-full btn-heavy py-5 rounded-2xl shadow-lg mt-4 text-lg"

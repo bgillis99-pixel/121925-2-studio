@@ -7,8 +7,8 @@ const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 const OFFLINE_KNOWLEDGE_BASE = [
   {
-    keywords: ['blocked', 'hold', 'registration', 'dmv', 'renew'],
-    answer: "🔒 **Why is my registration blocked?**\n\nCommon reasons:\n1. **Unpaid State Fee:** You must pay the $30 annual compliance fee per vehicle at https://cleantruckcheck.arb.ca.gov/.\n2. **Missing Test:** You need a passing Smoke/OBD test submitted within 90 days of your registration date."
+    keywords: ['held', 'hold', 'registration', 'dmv', 'renew', 'blocked'],
+    answer: "🔒 **Why is my registration being held?**\n\nCommon reasons:\n1. **Unpaid State Fee:** You must pay the $30 annual compliance fee per vehicle at https://cleantruckcheck.arb.ca.gov/.\n2. **Missing Test:** You need a passing Smoke/OBD test submitted within 90 days of your registration expiration date."
   },
   {
     keywords: ['deadline', 'when', 'due', 'date', 'frequency'],
@@ -24,16 +24,18 @@ const findOfflineAnswer = (query: string): string => {
 
 export const SYSTEM_INSTRUCTION = `
 You are VIN DIESEL, a specialized AI Compliance Officer and Certified Mobile Tester for the California Clean Truck Check (HD I/M) Program.
-Your mission is to be the PROACTIVE guide that the state fails to be.
-Tone: Honest, Urgent, Expert, and Supportive. Use "Tester Insights" to explain what CARB notices actually mean.
+Your mission is to be the PROACTIVE guide that the state fails to be. 
+Tone: Honest, Urgent, Expert, and Supportive. 
+
+IMPORTANT TERMINOLOGY: Use "Registration Hold" instead of "Blocked". Registration holds are the primary issue users face.
 
 Core Knowledge:
-1. Registration Blocks: Usually caused by missing $30 annual fees or tests performed outside the 90-day window.
+1. Registration Holds: Usually caused by missing $30 annual fees or tests performed outside the 90-day window.
 2. GVWR: Program applies strictly to Heavy-Duty vehicles >14,000 lbs GVWR.
 3. Frequency: 2x/year in 2025, 4x/year in 2027.
 4. Engine Family Names (EFN): Critical for testing. If unreadable, user needs an inspection.
 
-Rule: If a user asks about a block, explain exactly why (Fee vs Test) and give them the 617-359-6953 number for dispatch.
+Rule: If a user asks about a hold, explain exactly why (Fee vs Test window) and give them the 617-359-6953 number for dispatch.
 Footer Requirement: End every response with: "\n\nNeed a Certified Mobile Tester? Call Us: 617-359-6953"
 `;
 

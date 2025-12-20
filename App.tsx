@@ -93,9 +93,9 @@ const App: React.FC = () => {
   };
 
   const ActionButtons = () => (
-      <div className="flex gap-2 w-full max-w-md mx-auto">
+      <div className="flex gap-2 w-full">
           <a href="tel:6173596953" className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
-              <span>📞</span> CALL NOW
+              <span>📞</span> CALL
           </a>
           <button onClick={handleShare} className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
               <span>📤</span> SHARE
@@ -110,7 +110,7 @@ const App: React.FC = () => {
   return (
     <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900' : 'bg-teslaRed'} font-sans text-navy dark:text-gray-100 overflow-x-hidden transition-colors duration-300`}>
       
-      {/* TOP HEADER - NOW RED AND UNIFORM */}
+      {/* TOP HEADER */}
       <header className="bg-teslaRed dark:bg-gray-800 py-3 px-4 shadow-md sticky top-0 z-40 border-b border-white/10 flex flex-col gap-3 pt-safe">
         <div className="flex justify-between items-center">
             <div className="flex flex-col cursor-pointer" onClick={() => setCurrentView(AppView.HOME)}>
@@ -151,15 +151,22 @@ const App: React.FC = () => {
         )}
         {currentView === AppView.ADMIN && <AdminView />}
         
-        {/* BOTTOM REPEAT BUTTONS */}
-        <div className="mt-16 space-y-8 text-center pb-24 border-t border-white/20 pt-12">
-            <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-white/30 space-y-6">
-                <h4 className="text-navy dark:text-white font-black text-sm uppercase tracking-widest leading-none">MLB Marketing LLC</h4>
+        {/* RESTRUCTURED UTILITY BOX FOOTER */}
+        <div className="mt-12 space-y-6 text-center pb-24 border-t border-white/20 pt-10">
+            <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-[2.5rem] shadow-2xl border-4 border-navy space-y-6 max-w-sm mx-auto">
+                <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => setCurrentView(AppView.TOOLS)} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center gap-2 text-[9px] font-black uppercase border-2 border-navy/10">
+                        <span>🛠️</span> ENGINE SCAN
+                    </button>
+                    <button onClick={() => setCurrentView(AppView.TOOLS)} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center gap-2 text-[9px] font-black uppercase border-2 border-navy/10">
+                        <span>📋</span> CHECKLISTS
+                    </button>
+                </div>
                 <ActionButtons />
                 <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose">
-                    Statewide Heavy Duty Diesel Compliance<br/>
-                    Serving All 58 California Counties<br/>
-                    © 2026 MLB Marketing LLC
+                    Statewide Compliance & Testing<br/>
+                    Serving All 58 CA Counties<br/>
+                    © 2026 MOBILE CARB CHECK
                 </p>
             </div>
         </div>
