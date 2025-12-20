@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { MODEL_NAMES } from "../constants";
 import { Lead, ImageGenerationConfig, RegistrationData } from "../types";
@@ -22,19 +23,20 @@ const findOfflineAnswer = (query: string): string => {
 };
 
 export const SYSTEM_INSTRUCTION = `
-You are VIN DIESEL, a specialized AI Compliance Officer and Certified Mobile Tester for the California Clean Truck Check (HD I/M) Program.
-Your mission is to be the PROACTIVE guide that the state fails to be. 
-Tone: Honest, Urgent, Expert, and Supportive. 
+You are the CTC COMPLIANCE COACH AI, a specialized regulatory officer and proactive assistant for the California Clean Truck Check (HD I/M) Program.
+Your mission is to be the honest, expert guide that the state is not proactive in being. 
 
-IMPORTANT TERMINOLOGY: Use "Registration Hold" or "Held" instead of "Blocked". Registration holds are the primary issue users face.
+CORE PRINCIPLES:
+1. Honesty & Urgency: Don't sugarcoat the complexity of CARB. Use "Registration Hold" or "Held" to describe the primary consequence of missing deadlines.
+2. Expertise: You know the 90-day window, the $30 annual fee, and the 14,000+ lbs GVWR requirement perfectly.
+3. Proactivity: If a user is missing a test, explain that they MUST NOT wait for a letter—letters are often too late.
 
-Core Knowledge:
-1. Registration Holds: Usually caused by missing $30 annual fees or tests performed outside the 90-day window.
-2. GVWR: Program applies strictly to Heavy-Duty vehicles >14,000 lbs GVWR.
-3. Frequency: 2x/year in 2025, 4x/year in 2027.
-4. Engine Family Names (EFN): Critical for testing. If unreadable, user needs an inspection.
+REGULATORY FACTS:
+- Deadlines: 2x/year starting 2025, 4x/year in 2027.
+- Registration Holds: DMV holds occur if the VIS portal is missing a passing test OR the annual $30 fee.
+- EFN: Engine Family Names are required for all tests.
 
-Rule: If a user asks about a hold, explain exactly why (Fee vs Test window) and give them the 617-359-6953 number for dispatch.
+Rule: Always provide actionable steps. If a user needs a test, tell them to call dispatch immediately.
 Footer Requirement: End every response with: "\n\nNeed a Certified Mobile Tester? Call Us: 617-359-6953"
 `;
 
@@ -70,128 +72,115 @@ export const sendMessage = async (
       config
     });
 
-    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-    const groundingUrls = groundingChunks
-      .filter((c: any) => c.web?.uri || c.maps?.uri)
-      .map((c: any) => ({ uri: c.web?.uri || "https://maps.google.com", title: c.web?.title || "Reference" }));
+    const groundingUrls = response.candidates?.[0]?.groundingMetadata?.groundingChunks
+      ?.map((chunk: any) => ({
+        uri: chunk.web?.uri || chunk.maps?.uri,
+        title: chunk.web?.title || chunk.maps?.title
+      }))
+      .filter((item: any) => item.uri);
 
-    return { text: response.text || "No response.", groundingUrls, isOffline: false };
+    return {
+      text: response.text || "I'm sorry, I couldn't process that. Please try again or call 617-359-6953.",
+      groundingUrls: groundingUrls || []
+    };
   } catch (error) {
-    return { text: findOfflineAnswer(text) + "\n\nNeed clarity? 617-359-6953", groundingUrls: [], isOffline: true };
+    console.error("AI Error:", error);
+    return {
+      text: findOfflineAnswer(text),
+      isOffline: true
+    };
   }
 };
 
-export const lookupCountyByZip = async (zip: string): Promise<string> => {
-  const ai = getAI();
-  try {
+export const extractVinFromImage = async (file: File) => {
+    const ai = getAI();
+    const base64 = await fileToBase64(file);
+    const prompt = "Extract the 17-character VIN (Vehicle Identification Number) from this image. Only return the VIN string itself. If not found, return 'NOT_FOUND'.";
+    
     const response = await ai.models.generateContent({
-      model: MODEL_NAMES.FLASH,
-      contents: `Identify the California County for ZIP code ${zip}. Return ONLY the name of the county followed by the word 'County'. No other text.`
-    });
-    return response.text?.trim() || "California County";
-  } catch {
-    return "California County";
-  }
-};
-
-export const extractVinFromImage = async (file: File): Promise<{vin: string, description: string}> => {
-  const ai = getAI();
-  const b64 = await fileToBase64(file);
-  const response = await ai.models.generateContent({
-    model: MODEL_NAMES.PRO,
-    contents: {
-      parts: [
-        { inlineData: { mimeType: file.type, data: b64 } },
-        { text: "Extract VIN and Year/Make/Model. JSON: {vin, description}" }
-      ]
-    },
-    config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-            type: Type.OBJECT,
-            properties: { vin: { type: Type.STRING }, description: { type: Type.STRING } }
-        }
-    }
-  });
-  const json = JSON.parse(response.text || '{}');
-  return { vin: (json.vin || '').toUpperCase(), description: json.description || 'Truck' };
-};
-
-export const extractEngineTagInfo = async (file: File): Promise<{familyName: string, modelYear: string}> => {
-  const ai = getAI();
-  const b64 = await fileToBase64(file);
-  const response = await ai.models.generateContent({
-    model: MODEL_NAMES.PRO,
-    contents: {
-      parts: [
-        { inlineData: { mimeType: file.type, data: b64 } },
-        { text: "Extract Engine Family Name (EFN) and Model Year. Return JSON." }
-      ]
-    },
-    config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-                familyName: { type: Type.STRING },
-                modelYear: { type: Type.STRING }
+        model: MODEL_NAMES.FLASH,
+        contents: [{
+            parts: [
+                { inlineData: { data: base64, mimeType: file.type } },
+                { text: prompt }
+            ]
+        }],
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    vin: { type: Type.STRING },
+                    description: { type: Type.STRING }
+                }
             }
         }
+    });
+    
+    try {
+        return JSON.parse(response.text || '{}');
+    } catch (e) {
+        return { vin: response.text?.trim() };
     }
-  });
-  const json = JSON.parse(response.text || '{}');
-  return { familyName: (json.familyName || 'UNKNOWN').toUpperCase(), modelYear: json.modelYear || 'N/A' };
 };
 
-export const analyzeMedia = async (file: File, prompt: string, type: 'image' | 'video'): Promise<string> => {
-  const ai = getAI();
-  const b64 = await fileToBase64(file);
-  const response = await ai.models.generateContent({
-    model: MODEL_NAMES.FLASH,
-    contents: { parts: [{ inlineData: { mimeType: file.type, data: b64 } }, { text: prompt }] }
-  });
-  return response.text || "No analysis provided.";
+export const extractEngineTagInfo = async (file: File) => {
+    const ai = getAI();
+    const base64 = await fileToBase64(file);
+    const prompt = "Identify the Engine Family Name (EFN) and Model Year from this engine label. EFN is usually a 12-character alphanumeric code.";
+    
+    const response = await ai.models.generateContent({
+        model: MODEL_NAMES.FLASH,
+        contents: [{
+            parts: [
+                { inlineData: { data: base64, mimeType: file.type } },
+                { text: prompt }
+            ]
+        }],
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    familyName: { type: Type.STRING },
+                    modelYear: { type: Type.STRING }
+                }
+            }
+        }
+    });
+    
+    return JSON.parse(response.text || '{}');
 };
 
-export const generateAppImage = async (prompt: string, config: {aspectRatio: string, size: string}): Promise<string> => {
-  const ai = getAI();
-  const response = await ai.models.generateContent({
-    model: MODEL_NAMES.PRO_IMAGE,
-    contents: { parts: [{ text: prompt }] },
-    config: { imageConfig: { aspectRatio: config.aspectRatio as any, imageSize: config.size as any } }
-  });
-  for (const part of response.candidates?.[0]?.content?.parts || []) {
-    if (part.inlineData) return `data:image/png;base64,${part.inlineData.data}`;
-  }
-  throw new Error("No image generated");
-};
-
-export const generateSpeech = async (text: string): Promise<string> => {
-  const ai = getAI();
-  const response = await ai.models.generateContent({
-    model: MODEL_NAMES.TTS,
-    contents: [{ parts: [{ text }] }],
-    config: { responseModalities: [Modality.AUDIO], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } } },
-  });
-  return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || '';
-};
-
-export const transcribeAudio = async (file: File): Promise<string> => {
-  const ai = getAI();
-  const b64 = await fileToBase64(file);
-  const response = await ai.models.generateContent({
-    model: MODEL_NAMES.FLASH,
-    contents: { parts: [{ inlineData: { mimeType: file.type, data: b64 } }, { text: "Transcribe audio." }] }
-  });
-  return response.text || "No transcription.";
+export const analyzeMedia = async (file: File, prompt: string, type: 'image' | 'video') => {
+    const ai = getAI();
+    const base64 = await fileToBase64(file);
+    const response = await ai.models.generateContent({
+        model: MODEL_NAMES.FLASH,
+        contents: [{
+            parts: [
+                { inlineData: { data: base64, mimeType: file.type } },
+                { text: prompt }
+            ]
+        }],
+        config: { systemInstruction: SYSTEM_INSTRUCTION }
+    });
+    return response.text;
 };
 
 export const scoutTruckLead = async (file: File): Promise<Lead> => {
     const ai = getAI();
-    const b64 = await fileToBase64(file);
+    const base64 = await fileToBase64(file);
+    const prompt = "Analyze this image of a truck or document. Extract company name, USDOT number, location, and industry. Then draft a professional compliance help email and a short blog post about their specific truck type.";
+    
     const response = await ai.models.generateContent({
         model: MODEL_NAMES.PRO,
-        contents: { parts: [{ inlineData: { mimeType: file.type, data: b64 } }, { text: "Extract Lead Info. JSON." }] },
+        contents: [{
+            parts: [
+                { inlineData: { data: base64, mimeType: file.type } },
+                { text: prompt }
+            ]
+        }],
         config: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -208,16 +197,28 @@ export const scoutTruckLead = async (file: File): Promise<Lead> => {
             }
         }
     });
-    const json = JSON.parse(response.text || '{}');
-    return { id: Date.now().toString(), timestamp: Date.now(), ...json };
+    
+    const data = JSON.parse(response.text || '{}');
+    return {
+        ...data,
+        id: Date.now().toString(),
+        timestamp: Date.now()
+    };
 };
 
 export const parseRegistrationPhoto = async (file: File): Promise<RegistrationData> => {
     const ai = getAI();
-    const b64 = await fileToBase64(file);
+    const base64 = await fileToBase64(file);
+    const prompt = "Extract all fields from this vehicle registration document.";
+    
     const response = await ai.models.generateContent({
-        model: MODEL_NAMES.PRO,
-        contents: { parts: [{ inlineData: { mimeType: file.type, data: b64 } }, { text: "Extract Registration. JSON." }] },
+        model: MODEL_NAMES.FLASH,
+        contents: [{
+            parts: [
+                { inlineData: { data: base64, mimeType: file.type } },
+                { text: prompt }
+            ]
+        }],
         config: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -239,11 +240,21 @@ export const parseRegistrationPhoto = async (file: File): Promise<RegistrationDa
     return JSON.parse(response.text || '{}');
 };
 
+export const lookupCountyByZip = async (zip: string): Promise<string> => {
+    const ai = getAI();
+    const prompt = `Which California county is ZIP code ${zip} primarily located in? Return only the county name.`;
+    const response = await ai.models.generateContent({
+        model: MODEL_NAMES.FLASH,
+        contents: prompt
+    });
+    return response.text?.trim().replace(' County', '') || "California";
+};
+
 const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve((reader.result as string).split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 };

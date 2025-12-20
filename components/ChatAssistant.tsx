@@ -7,9 +7,17 @@ interface ExtendedMessage extends Message {
   isOffline?: boolean;
 }
 
+const SUGGESTED_QUESTIONS = [
+    "Why is my registration held?",
+    "When is my next smoke test due?",
+    "What is an Engine Family Name?",
+    "How do I pay the $30 CARB fee?",
+    "Is my truck exempt from testing?"
+];
+
 const ChatAssistant: React.FC = () => {
   const [messages, setMessages] = useState<ExtendedMessage[]>([
-    { id: 'init', role: 'model', text: 'HELLO! I AM VIN DIESEL AI. ASK ME ABOUT CARB REGULATIONS, FIND TESTERS NEAR YOU, OR CLARIFY COMPLEX COMPLIANCE RULES.', timestamp: Date.now() }
+    { id: 'init', role: 'model', text: 'HELLO! I AM YOUR CTC COMPLIANCE COACH AI. ASK ME ANYTHING ABOUT CARB REGULATIONS, TESTING DEADLINES, OR REGISTRATION HOLDS.', timestamp: Date.now() }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -120,22 +128,6 @@ const ChatAssistant: React.FC = () => {
     }
   };
 
-  const handleDownloadChat = () => {
-      const chatText = messages
-          .filter(m => m.id !== 'init')
-          .map(m => `[${new Date(m.timestamp).toLocaleTimeString()}] ${m.role.toUpperCase()}: ${m.text}`)
-          .join('\n\n');
-      
-      const blob = new Blob([chatText], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `carb-chat.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-  };
-
   if (showEscalation) {
       return (
           <div className="fixed inset-0 z-[100] bg-navy/95 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in">
@@ -169,13 +161,15 @@ const ChatAssistant: React.FC = () => {
       );
   }
 
+  const displayedPills = recentQuestions.length > 0 ? recentQuestions : SUGGESTED_QUESTIONS;
+
   return (
     <div className="flex flex-col h-[calc(100dvh-200px)] bg-white dark:bg-gray-800 rounded-3xl border-4 border-navy overflow-hidden shadow-2xl mb-10 transition-colors">
       
       {/* HEADER */}
       <div className="bg-navy text-white p-3 px-5 flex justify-between items-center">
         <div>
-            <h2 className="font-black text-xs uppercase tracking-widest leading-none">VIN DIESEL AI</h2>
+            <h2 className="font-black text-xs uppercase tracking-widest leading-none">CTC COACH AI</h2>
             <div className="flex items-center gap-1 mt-1">
                 <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
                 <span className="text-[8px] font-black opacity-70">DISPATCH READY</span>
@@ -252,21 +246,25 @@ const ChatAssistant: React.FC = () => {
           </button>
         </div>
         
-        {/* RECENT QUESTIONS */}
-        {recentQuestions.length > 0 && (
-            <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2">
-                <p className="w-full text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Recent Searches:</p>
-                {recentQuestions.map((q, idx) => (
-                    <button 
-                        key={idx} 
-                        onClick={() => setInput(q)}
-                        className="text-[9px] font-black uppercase bg-gray-100 dark:bg-gray-700 text-navy dark:text-gray-300 px-3 py-1.5 rounded-lg border border-navy/10 hover:border-teslaRed transition-colors truncate max-w-[150px]"
-                    >
-                        {q}
-                    </button>
-                ))}
-            </div>
-        )}
+        {/* RECENT / SUGGESTED QUESTIONS */}
+        <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2">
+            <p className="w-full text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                {recentQuestions.length > 0 ? 'Recent Searches:' : 'Suggested Questions:'}
+            </p>
+            {displayedPills.map((q, idx) => (
+                <button 
+                    key={idx} 
+                    onClick={() => {
+                        setInput(q.toUpperCase());
+                        // Optional: trigger immediate send if preferred, 
+                        // but user asked for "pre-fill"
+                    }}
+                    className="text-[9px] font-black uppercase bg-gray-100 dark:bg-gray-700 text-navy dark:text-gray-300 px-3 py-1.5 rounded-lg border border-navy/10 hover:border-teslaRed transition-colors truncate max-w-[150px]"
+                >
+                    {q}
+                </button>
+            ))}
+        </div>
       </div>
     </div>
   );

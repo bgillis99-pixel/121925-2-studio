@@ -1,7 +1,7 @@
 
 {
-  "name": "Mobile Carb Check",
-  "short_name": "Mobile Carb",
+  "name": "CTC Compliance Coach",
+  "short_name": "CTC Coach",
   "description": "The proactive pocket CARB assistant. Check compliance, find testers, and get AI-powered regulatory answers instantly.",
   "start_url": "/",
   "display": "standalone",
