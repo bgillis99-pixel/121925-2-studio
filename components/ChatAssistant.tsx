@@ -7,14 +7,6 @@ interface ExtendedMessage extends Message {
   isOffline?: boolean;
 }
 
-const SUGGESTED_QUESTIONS = [
-  "WHY IS MY REGISTRATION HELD?",
-  "WHEN IS MY NEXT TEST DUE?",
-  "HOW DO I FIND A TESTER?",
-  "WHAT IS AN EFN CODE?",
-  "IS MY TRUCK OVER 14,000 LBS?"
-];
-
 const ChatAssistant: React.FC = () => {
   const [messages, setMessages] = useState<ExtendedMessage[]>([
     { id: 'init', role: 'model', text: 'HELLO! I AM VIN DIESEL AI. ASK ME ABOUT CARB REGULATIONS, FIND TESTERS NEAR YOU, OR CLARIFY COMPLEX COMPLIANCE RULES.', timestamp: Date.now() }
@@ -52,7 +44,7 @@ const ChatAssistant: React.FC = () => {
       if (question.length < 5) return;
       try {
           const existing = JSON.parse(localStorage.getItem('vin_diesel_recent_questions') || '[]');
-          const updated = [question.toUpperCase(), ...existing.filter((q: string) => q !== question.toUpperCase())].slice(0, 5);
+          const updated = [question, ...existing.filter((q: string) => q !== question)].slice(0, 5);
           localStorage.setItem('vin_diesel_recent_questions', JSON.stringify(updated));
           setRecentQuestions(updated);
       } catch (e) {
@@ -260,26 +252,21 @@ const ChatAssistant: React.FC = () => {
           </button>
         </div>
         
-        {/* RECENT & SUGGESTED QUESTIONS */}
-        <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2">
-            <p className="w-full text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
-                {recentQuestions.length > 0 ? 'RECENT & SUGGESTED QUESTIONS' : 'SUGGESTED QUESTIONS'}
-            </p>
-            {/* Show user's recent questions first, then fallback to suggested ones */}
-            {[...recentQuestions, ...SUGGESTED_QUESTIONS]
-                .filter((v, i, a) => a.indexOf(v) === i) // Unique
-                .slice(0, 5)
-                .map((q, idx) => (
+        {/* RECENT QUESTIONS */}
+        {recentQuestions.length > 0 && (
+            <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2">
+                <p className="w-full text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Recent Searches:</p>
+                {recentQuestions.map((q, idx) => (
                     <button 
                         key={idx} 
                         onClick={() => setInput(q)}
-                        className="text-[9px] font-black uppercase bg-gray-100 dark:bg-gray-700 text-navy dark:text-gray-300 px-3 py-1.5 rounded-lg border border-navy/10 hover:border-teslaRed hover:text-teslaRed transition-all truncate max-w-[180px] active:scale-95"
+                        className="text-[9px] font-black uppercase bg-gray-100 dark:bg-gray-700 text-navy dark:text-gray-300 px-3 py-1.5 rounded-lg border border-navy/10 hover:border-teslaRed transition-colors truncate max-w-[150px]"
                     >
                         {q}
                     </button>
-                ))
-            }
-        </div>
+                ))}
+            </div>
+        )}
       </div>
     </div>
   );
