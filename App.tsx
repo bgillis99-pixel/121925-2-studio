@@ -8,9 +8,10 @@ import AdminView from './components/AdminView';
 import EducationCenter from './components/EducationCenter';
 import { AppView, User, HistoryItem } from './types';
 
-const USERS_KEY = 'vin_diesel_users_db';
-const CURRENT_USER_KEY = 'vin_diesel_active_session';
-const GLOBAL_HISTORY_KEY = 'vin_diesel_guest_history';
+const USERS_KEY = 'vin_diesel_users';
+const CURRENT_USER_KEY = 'vin_diesel_current_user';
+const GLOBAL_HISTORY_KEY = 'vin_diesel_global_history';
+const THEME_KEY = 'vin_diesel_theme';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -28,11 +29,21 @@ const App: React.FC = () => {
   const [showInstall, setShowInstall] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem(THEME_KEY) === 'dark';
+  });
 
-  const shareUrl = 'https://carbcleantruckcheck.app';
+  const shareUrl = 'https://cleantruckcheckvin.app';
 
-  // INITIAL LOAD
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, isDarkMode ? 'dark' : 'light');
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   useEffect(() => {
     const checkIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     setIsIOS(checkIOS);
@@ -43,65 +54,20 @@ const App: React.FC = () => {
     };
     window.addEventListener('beforeinstallprompt', handler);
 
-    // RESTORE SESSION
-    const activeEmail = localStorage.getItem(CURRENT_USER_KEY);
-    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-    
-    if (activeEmail && users[activeEmail]) {
-        setUser({ email: activeEmail, history: users[activeEmail].history || [] });
-        setHistory(users[activeEmail].history || []);
+    const currentEmail = localStorage.getItem(CURRENT_USER_KEY);
+    if (currentEmail) {
+      const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+      if (users[currentEmail]) {
+        setUser({ email: currentEmail, history: users[currentEmail].history || [] });
+        setHistory(users[currentEmail].history || []);
+      }
     } else {
-        const guestHistory = JSON.parse(localStorage.getItem(GLOBAL_HISTORY_KEY) || '[]');
-        setHistory(guestHistory);
+      const globalHistory = JSON.parse(localStorage.getItem(GLOBAL_HISTORY_KEY) || '[]');
+      setHistory(globalHistory);
     }
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
-
-  const handleLogin = (email: string) => {
-      const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-      if (users[email]) {
-          localStorage.setItem(CURRENT_USER_KEY, email);
-          setUser({ email, history: users[email].history || [] });
-          setHistory(users[email].history || []);
-          alert(`Welcome back, ${email}`);
-          setCurrentView(AppView.HOME);
-      } else {
-          alert("No account found for this email. Please sign up.");
-      }
-  };
-
-  const handleRegister = (email: string) => {
-      const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-      if (users[email]) {
-          alert("Account already exists. Logging you in.");
-          handleLogin(email);
-          return;
-      }
-      
-      // Migrate guest history to new account
-      const guestHistory = JSON.parse(localStorage.getItem(GLOBAL_HISTORY_KEY) || '[]');
-      users[email] = { history: guestHistory };
-      
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-      localStorage.setItem(CURRENT_USER_KEY, email);
-      // Clear guest history now that it's moved
-      localStorage.removeItem(GLOBAL_HISTORY_KEY);
-      
-      setUser({ email, history: guestHistory });
-      setHistory(guestHistory);
-      alert(`Account created for ${email}. Your scan history has been saved.`);
-      setCurrentView(AppView.HOME);
-  };
-
-  const handleLogout = () => {
-      localStorage.removeItem(CURRENT_USER_KEY);
-      setUser(null);
-      const guestHistory = JSON.parse(localStorage.getItem(GLOBAL_HISTORY_KEY) || '[]');
-      setHistory(guestHistory);
-      alert("Logged out successfully.");
-      setCurrentView(AppView.HOME);
-  };
 
   const handleInstallClick = async () => {
     if (isIOS) setShowInstall(true);
@@ -128,58 +94,48 @@ const App: React.FC = () => {
     const newItem: HistoryItem = { id: Date.now().toString(), value: value.trim().toUpperCase(), type, timestamp: Date.now() };
     const updated = [newItem, ...history.filter(h => h.value !== newItem.value)].slice(0, 50);
     setHistory(updated);
-
-    if (user) {
-        // Update DB
-        const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-        users[user.email].history = updated;
-        localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    } else {
-        // Save to Guest
-        localStorage.setItem(GLOBAL_HISTORY_KEY, JSON.stringify(updated));
-    }
+    if (!user) localStorage.setItem(GLOBAL_HISTORY_KEY, JSON.stringify(updated));
   };
 
   const ActionButtons = () => (
-      <div className="flex gap-2 w-full max-w-md mx-auto">
+      <div className="flex gap-2 w-full">
           <a href="tel:6173596953" className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
-              <span>📞</span> CALL NOW
+              <span>📞</span> CALL
           </a>
           <button onClick={handleShare} className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
               <span>📤</span> SHARE
           </button>
-          <button onClick={handleInstallClick} className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
-              <span>📲</span> APP
+          <button onClick={handleInstallClick} className="flex-1 btn-heavy py-1 rounded-2xl flex flex-col items-center justify-center leading-none text-[9px]">
+              <span className="font-black">DOWN</span>
+              <span className="font-black">LOAD</span>
           </button>
       </div>
   );
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark bg-gray-900' : 'bg-teslaRed'} font-sans text-navy dark:text-gray-100 overflow-x-hidden`}>
+    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900' : 'bg-teslaRed'} font-sans text-navy dark:text-gray-100 overflow-x-hidden transition-colors duration-300`}>
       
       {/* TOP HEADER */}
-      <header className="bg-white dark:bg-gray-800 py-3 px-4 shadow-sm sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700 flex flex-col gap-3 pt-safe">
+      <header className="bg-teslaRed dark:bg-gray-800 py-3 px-4 shadow-md sticky top-0 z-40 border-b border-white/10 flex flex-col gap-3 pt-safe">
         <div className="flex justify-between items-center">
             <div className="flex flex-col cursor-pointer" onClick={() => setCurrentView(AppView.HOME)}>
-                <h1 className="text-xl font-black tracking-tighter text-navy dark:text-white uppercase leading-none">Mobile CARB</h1>
-                <p className="text-teslaRed text-[10px] font-black tracking-widest uppercase">Clean Truck Check App</p>
+                <h1 className="text-xl font-black tracking-tighter text-white uppercase leading-none">Mobile CARB</h1>
+                <p className="text-white/80 text-[10px] font-black tracking-widest uppercase">Clean Truck Check App</p>
             </div>
-            <div className="text-[10px] font-black bg-navy/5 px-3 py-1 rounded-full text-navy dark:text-blue-300">
-                DISPATCH: <span className="text-green uppercase animate-pulse">Online</span>
+            <div className="text-[10px] font-black bg-white/10 px-3 py-1 rounded-full text-white">
+                DISPATCH: <span className="text-vibrantGreen uppercase animate-pulse">Online</span>
             </div>
         </div>
         <ActionButtons />
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 px-4 pt-6 pb-24 max-w-lg mx-auto w-full overflow-y-auto">
+      <main className="flex-1 px-4 pt-3 pb-24 max-w-lg mx-auto w-full overflow-y-auto">
         {currentView === AppView.HOME && (
             <VinChecker 
-                isGuest={!user}
                 onAddToHistory={handleAddToHistory} 
                 onNavigateChat={() => setCurrentView(AppView.ASSISTANT)}
                 onNavigateEducation={() => setCurrentView(AppView.EDUCATION)}
-                onNavigateProfile={() => setCurrentView(AppView.PROFILE)}
                 onInstallApp={handleInstallClick}
             />
         )}
@@ -190,24 +146,33 @@ const App: React.FC = () => {
           <ProfileView 
             user={user} 
             history={history} 
-            onLogin={handleLogin} 
-            onRegister={handleRegister} 
-            onLogout={handleLogout} 
+            onLogin={() => {}} 
+            onRegister={() => {}} 
+            onLogout={() => {}} 
             isDarkMode={isDarkMode}
             toggleTheme={() => setIsDarkMode(!isDarkMode)}
+            onAdminAccess={() => setCurrentView(AppView.ADMIN)}
           />
         )}
         {currentView === AppView.ADMIN && <AdminView />}
         
-        {/* BOTTOM REPEAT BUTTONS */}
-        <div className="mt-16 space-y-8 text-center pb-24 border-t border-white/20 pt-12">
-            <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-white/30 space-y-6">
-                <h4 className="text-navy dark:text-white font-black text-sm uppercase tracking-widest leading-none">NorCal CARB Mobile</h4>
-                <ActionButtons />
-                <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose">
-                    Statewide Heavy Duty Diesel Compliance<br/>
-                    Support: fsu99@me.com<br/>
-                    © 2026 NorCal CARB Mobile LLC
+        <div className="mt-12 space-y-6 text-center pb-24 border-t border-white/20 pt-10">
+            <div className="bg-white/95 dark:bg-gray-800 p-6 rounded-[2.5rem] shadow-2xl border-4 border-navy space-y-6 max-w-sm mx-auto">
+                <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => setCurrentView(AppView.TOOLS)} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center gap-2 text-[9px] font-black uppercase border-2 border-navy/10">
+                        <span>🛠️</span> ENGINE SCAN
+                    </button>
+                    <button onClick={() => setCurrentView(AppView.TOOLS)} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center gap-2 text-[9px] font-black uppercase border-2 border-navy/10">
+                        <span>📋</span> CHECKLISTS
+                    </button>
+                </div>
+                <div className="pt-2">
+                  <ActionButtons />
+                </div>
+                <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose pt-2">
+                    Statewide Compliance & Testing<br/>
+                    Serving All 58 CA Counties<br/>
+                    © 2026 MOBILE CARB CHECK
                 </p>
             </div>
         </div>
@@ -220,7 +185,7 @@ const App: React.FC = () => {
             { id: AppView.TOOLS, icon: "M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z", label: "TOOLS" },
             { id: AppView.ASSISTANT, icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z", label: "VIN DIESEL" },
             { id: AppView.EDUCATION, icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253", label: "LEARN" },
-            { id: AppView.PROFILE, icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z", label: user ? "ACCOUNT" : "LOGIN" }
+            { id: AppView.PROFILE, icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z", label: "PROFILE" }
         ].map(btn => (
             <button key={btn.id} onClick={() => setCurrentView(btn.id as AppView)} className={`flex flex-col items-center justify-center flex-1 h-full pb-4 transition-all duration-200 ${currentView === btn.id ? '-translate-y-2' : ''}`}>
                 <div className={`p-2 rounded-2xl mb-1 transition-colors ${currentView === btn.id ? 'bg-teslaRed text-white shadow-lg' : 'text-gray-700 dark:text-gray-300'}`}>

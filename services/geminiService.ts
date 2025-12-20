@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { MODEL_NAMES } from "../constants";
 import { Lead, ImageGenerationConfig, RegistrationData } from "../types";
@@ -7,8 +6,8 @@ const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 const OFFLINE_KNOWLEDGE_BASE = [
   {
-    keywords: ['blocked', 'hold', 'registration', 'dmv', 'renew'],
-    answer: "🔒 **Why is my registration blocked?**\n\nCommon reasons:\n1. **Unpaid State Fee:** You must pay the $30 annual compliance fee per vehicle at https://cleantruckcheck.arb.ca.gov/.\n2. **Missing Test:** You need a passing Smoke/OBD test submitted within 90 days of your registration date."
+    keywords: ['held', 'hold', 'registration', 'dmv', 'renew', 'blocked'],
+    answer: "🔒 **Why is my registration being held?**\n\nCommon reasons:\n1. **Unpaid State Fee:** You must pay the $30 annual compliance fee per vehicle at https://cleantruckcheck.arb.ca.gov/.\n2. **Missing Test:** You need a passing Smoke/OBD test submitted within 90 days of your registration expiration date."
   },
   {
     keywords: ['deadline', 'when', 'due', 'date', 'frequency'],
@@ -19,15 +18,24 @@ const OFFLINE_KNOWLEDGE_BASE = [
 const findOfflineAnswer = (query: string): string => {
     const lowerQuery = query.toLowerCase();
     const match = OFFLINE_KNOWLEDGE_BASE.find(item => item.keywords.some(k => lowerQuery.includes(k)));
-    return match ? match.answer : "ℹ️ **Offline Mode:** Checklist:\n1. Paid $30 fee?\n2. Test < 90 days old?\n3. GVWR > 14k lbs?\n\nContact: **fsu99@me.com**.";
+    return match ? match.answer : "ℹ️ **Offline Mode:** Checklist:\n1. Paid $30 fee?\n2. Test < 90 days old?\n3. GVWR > 14k lbs?\n\nCall: **617-359-6953**.";
 };
 
 export const SYSTEM_INSTRUCTION = `
-You are VIN DIESEL, a specialized AI Compliance Officer for the California Clean Truck Check (HD I/M) Program.
-Base answers strictly on official CARB data (ww2.arb.ca.gov/our-work/programs/CTC).
-Scope: ONLY Heavy-Duty Diesel Trucks (>14,000 lbs GVWR).
-Support Contact: fsu99@me.com
-Footer Requirement: End every response with: "\n\nNeed a Certified Mobile Tester? Contact us at fsu99@me.com or Call: 617-359-6953"
+You are VIN DIESEL, a specialized AI Compliance Officer and Certified Mobile Tester for the California Clean Truck Check (HD I/M) Program.
+Your mission is to be the PROACTIVE guide that the state fails to be. 
+Tone: Honest, Urgent, Expert, and Supportive. 
+
+IMPORTANT TERMINOLOGY: Use "Registration Hold" or "Held" instead of "Blocked". Registration holds are the primary issue users face.
+
+Core Knowledge:
+1. Registration Holds: Usually caused by missing $30 annual fees or tests performed outside the 90-day window.
+2. GVWR: Program applies strictly to Heavy-Duty vehicles >14,000 lbs GVWR.
+3. Frequency: 2x/year in 2025, 4x/year in 2027.
+4. Engine Family Names (EFN): Critical for testing. If unreadable, user needs an inspection.
+
+Rule: If a user asks about a hold, explain exactly why (Fee vs Test window) and give them the 617-359-6953 number for dispatch.
+Footer Requirement: End every response with: "\n\nNeed a Certified Mobile Tester? Call Us: 617-359-6953"
 `;
 
 export const sendMessage = async (
@@ -69,7 +77,7 @@ export const sendMessage = async (
 
     return { text: response.text || "No response.", groundingUrls, isOffline: false };
   } catch (error) {
-    return { text: findOfflineAnswer(text) + "\n\nNeed clarity? fsu99@me.com", groundingUrls: [], isOffline: true };
+    return { text: findOfflineAnswer(text) + "\n\nNeed clarity? 617-359-6953", groundingUrls: [], isOffline: true };
   }
 };
 
@@ -94,7 +102,7 @@ export const extractVinFromImage = async (file: File): Promise<{vin: string, des
     contents: {
       parts: [
         { inlineData: { mimeType: file.type, data: b64 } },
-        { text: "ACT AS AN EXPERT OCR ENGINE. Extract the 17-digit VIN from this truck or registration image. Be careful with '0' (zero) vs 'O' (Oscar), and '1' (one) vs 'I' (India). Also extract the Year/Make/Model. Return JSON: {vin, description}." }
+        { text: "Extract VIN and Year/Make/Model. JSON: {vin, description}" }
       ]
     },
     config: {
@@ -117,7 +125,7 @@ export const extractEngineTagInfo = async (file: File): Promise<{familyName: str
     contents: {
       parts: [
         { inlineData: { mimeType: file.type, data: b64 } },
-        { text: "Extract the Engine Family Name (EFN) and Model Year from this engine label. EFN is usually a 12-character alphanumeric code. Pay close attention to '0' vs 'O'. Return JSON." }
+        { text: "Extract Engine Family Name (EFN) and Model Year. Return JSON." }
       ]
     },
     config: {
