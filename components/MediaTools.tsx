@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { analyzeMedia, extractEngineTagInfo } from '../services/geminiService';
 import { Submission } from '../types';
@@ -32,6 +31,7 @@ const MediaTools: React.FC = () => {
   const [subTab, setSubTab] = useState<'ovi' | 'obd'>('ovi');
 
   const engineTagRef = useRef<HTMLInputElement>(null);
+  const analysisInputRef = useRef<HTMLInputElement>(null);
 
   const logSubmission = (type: string, summary: string, details: any) => {
       const submission: Submission = {
@@ -63,7 +63,7 @@ const MediaTools: React.FC = () => {
           setEngineTagResult(result);
           logSubmission('Engine Tag Scan', result.familyName, result);
       } catch (err) {
-          alert('Engine label read failed. Ensure the family name is visible.');
+          alert('Engine label read failed. Ensure label is clean.');
       } finally {
           setLoading(false);
           e.target.value = '';
@@ -82,15 +82,15 @@ const MediaTools: React.FC = () => {
         setResult(text);
         logSubmission('Visual Inspection', `Uploaded ${type}`, { result: text });
     } catch (err) {
-        setResult("Analysis failed. Please try again.");
+        setResult("Analysis failed. Try again.");
     } finally {
         setLoading(false);
+        e.target.value = '';
     }
   };
 
   return (
     <div className="w-full max-w-md mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-xl border-4 border-navy overflow-hidden mb-20 transition-colors">
-      {/* Tools Tabs */}
       <div className="flex border-b-4 border-navy bg-gray-50 dark:bg-gray-900">
         <button className={`flex-1 p-4 font-black text-[10px] uppercase tracking-tighter ${activeTab === 'scan' ? 'text-teslaRed border-b-4 border-teslaRed bg-white dark:bg-gray-800' : 'text-gray-400'}`} onClick={() => setActiveTab('scan')}>Engine Scan</button>
         <button className={`flex-1 p-4 font-black text-[10px] uppercase tracking-tighter ${activeTab === 'analyze' ? 'text-teslaRed border-b-4 border-teslaRed bg-white dark:bg-gray-800' : 'text-gray-400'}`} onClick={() => setActiveTab('analyze')}>Checklists</button>
@@ -100,19 +100,22 @@ const MediaTools: React.FC = () => {
       <div className="p-6 min-h-[400px]">
         {activeTab === 'scan' && (
             <div className="space-y-6 text-center animate-in fade-in zoom-in">
-                <div className="w-20 h-20 bg-navy/10 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner border-2 border-navy/20">🔖</div>
+                <div className="w-20 h-20 bg-navy/5 rounded-full flex items-center justify-center mx-auto border-2 border-navy/10">
+                    <svg className="w-10 h-10 text-navy/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                </div>
                 <div>
-                    <h3 className="text-xl font-black text-navy dark:text-white uppercase">Engine Family Reader</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Extract the EFN code from the valve cover label.</p>
+                    <h3 className="text-xl font-black text-navy dark:text-white uppercase tracking-tight">Engine Family Reader</h3>
+                    <p className="text-xs text-gray-400 mt-1 uppercase font-bold tracking-widest">Identify EFN codes instantly</p>
                 </div>
                 
                 <button 
                   onClick={() => engineTagRef.current?.click()} 
-                  className="w-full btn-heavy py-5 rounded-2xl text-lg flex items-center justify-center gap-3"
+                  className="w-full btn-heavy py-6 rounded-2xl text-lg flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all"
                 >
-                    <span>📸</span> SCAN ENGINE TAG
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                    <span className="font-black uppercase tracking-tighter">SCAN LABEL</span>
                 </button>
-                <input type="file" ref={engineTagRef} onChange={handleEngineTagScan} accept="image/*" className="hidden" />
+                <input type="file" ref={engineTagRef} onChange={handleEngineTagScan} accept="image/*" capture="environment" className="hidden" />
 
                 {engineTagResult && (
                     <div className="p-6 bg-orange-50 dark:bg-orange-900/20 border-4 border-navy rounded-2xl space-y-4 animate-in slide-in-from-bottom-2">
@@ -122,10 +125,9 @@ const MediaTools: React.FC = () => {
                             <p className="text-xs text-gray-500">Model Year: {engineTagResult.modelYear}</p>
                         </div>
                         <div className="space-y-2">
-                             <a href={`sms:6173596953?body=I scanned EFN ${engineTagResult.familyName} and need a test.`} className="block w-full btn-heavy py-3 rounded-xl text-sm">TEXT TO DISPATCH</a>
-                             <a href="tel:6173596953" className="block w-full btn-heavy py-3 rounded-xl text-sm">CALL TO BOOK</a>
+                             <a href={`sms:6173596953?body=I scanned EFN ${engineTagResult.familyName} and need a test.`} className="block w-full btn-heavy py-3 rounded-xl text-xs !bg-navy !text-white !border-navy">TEXT DISPATCH</a>
+                             <a href="tel:6173596953" className="block w-full btn-heavy py-3 rounded-xl text-xs">CALL DISPATCH</a>
                         </div>
-                        <button onClick={() => setEngineTagResult(null)} className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Clear Result</button>
                     </div>
                 )}
             </div>
@@ -145,40 +147,43 @@ const MediaTools: React.FC = () => {
                     ))}
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border-4 border-navy">
-                    <h4 className="text-xs font-black text-navy dark:text-blue-300 uppercase mb-2 flex items-center gap-1">
-                        <span>📋</span> {CHECKLISTS[subTab].label} Pre-Test Checklist
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-xl border-4 border-navy">
+                    <h4 className="text-xs font-black text-navy dark:text-blue-300 uppercase mb-3 flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        Pre-Test Checklist
                     </h4>
-                    <ul className="space-y-1">
+                    <ul className="space-y-2">
                         {CHECKLISTS[subTab].items.map((item, idx) => (
                             <li key={idx} className="text-xs text-navy dark:text-gray-300 flex items-start gap-2 font-bold">
-                                <span className="text-teslaRed font-black">✓</span> {item}
+                                <span className="text-teslaRed font-black">•</span> {item}
                             </li>
                         ))}
                     </ul>
                 </div>
 
                 <div className="space-y-3">
-                    <p className="text-xs font-black text-navy dark:text-white uppercase">Visual Support</p>
-                    <label className="block w-full btn-heavy p-4 rounded-xl cursor-pointer flex items-center justify-center gap-2">
-                        <span>📷</span> Upload Photo/Video
-                        <input type="file" accept="image/*,video/*" className="hidden" onChange={handleAnalyze} />
-                    </label>
-                    <p className="text-[10px] text-center text-gray-400 font-bold uppercase tracking-tight">Analysis logs are reviewed by certified testers.</p>
+                    <button 
+                      onClick={() => analysisInputRef.current?.click()}
+                      className="w-full btn-heavy py-4 rounded-xl flex items-center justify-center gap-2 text-xs"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                        UPLOAD PHOTO FOR REVIEW
+                        <input type="file" ref={analysisInputRef} accept="image/*,video/*" capture="environment" className="hidden" onChange={handleAnalyze} />
+                    </button>
+                    <p className="text-[9px] text-center text-gray-400 font-bold uppercase tracking-widest">Logs reviewed by certified testers.</p>
                 </div>
             </div>
         )}
 
         {activeTab === 'generate' && (
-            <div className="space-y-4">
-                <h3 className="text-navy dark:text-white font-black text-lg uppercase tracking-tight">Decal Generation</h3>
-                <p className="text-xs text-gray-500 font-bold">Generate professional door decals for your fleet.</p>
-                <button className="w-full btn-heavy p-4 rounded-xl opacity-50 cursor-not-allowed">✨ Generate (Pro Only)</button>
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-30">
+                <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <p className="text-xs font-black uppercase tracking-widest">Fleet Decal Generator Coming Soon</p>
             </div>
         )}
 
-        {loading && <div className="mt-4 p-4 bg-navy/5 text-teslaRed text-center rounded-xl animate-pulse font-black uppercase text-xs">Processing...</div>}
-        {result && <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 text-navy dark:text-white rounded-xl border-2 border-navy whitespace-pre-wrap text-xs font-black uppercase">{result}</div>}
+        {loading && <div className="mt-4 p-4 bg-navy/5 text-teslaRed text-center rounded-xl animate-pulse font-black uppercase text-xs">AI Analyzing...</div>}
+        {result && <div className="mt-4 p-5 bg-gray-50 dark:bg-gray-700 text-navy dark:text-white rounded-xl border-2 border-navy whitespace-pre-wrap text-[11px] font-bold uppercase leading-relaxed">{result}</div>}
       </div>
     </div>
   );

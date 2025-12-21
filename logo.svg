@@ -1,7 +1,5 @@
 <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect width="512" height="512" rx="100" fill="#ffffff"/>
-  <!-- Professional rendering of the provided 'C' logo -->
   <path d="M375 140c-25-25-60-40-100-40-85 0-155 70-155 155s70 155 155 155c40 0 75-15 100-40l45 45c-35 35-85 55-145 55-120 0-215-95-215-215S155 40 275 40c60 0 110 20 145 55l-45 45z" fill="#0E3386"/>
-  <!-- Adding a subtle registered trademark symbol as seen in the source -->
-  <text x="420" y="345" font-family="Arial" font-size="12" font-weight="bold" fill="#0E3386">TM</text>
+  <text x="430" y="360" font-family="Archivo, Arial" font-size="16" font-weight="900" fill="#0E3386">TM</text>
 </svg>

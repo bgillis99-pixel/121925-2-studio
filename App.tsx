@@ -96,45 +96,40 @@ const App: React.FC = () => {
     if (!user) localStorage.setItem(GLOBAL_HISTORY_KEY, JSON.stringify(updated));
   };
 
-  const ActionButtons = () => (
-      <div className="flex gap-2 w-full">
-          <a href="tel:6173596953" className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
-              <span>📞</span> CALL
-          </a>
-          <button onClick={handleShare} className="flex-1 btn-heavy py-3 rounded-2xl flex items-center justify-center gap-2 text-[10px]">
-              <span>📤</span> SHARE
-          </button>
-          <button onClick={handleInstallClick} className="flex-1 btn-heavy py-1 rounded-2xl flex flex-col items-center justify-center leading-none text-[9px]">
-              <span className="font-black">DOWN</span>
-              <span className="font-black">LOAD</span>
-          </button>
-      </div>
-  );
-
   return (
     <div className={`min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900' : 'bg-navy'} font-sans text-navy dark:text-gray-100 overflow-x-hidden transition-colors duration-300`}>
       
-      {/* TOP HEADER */}
-      <header className="bg-navy dark:bg-gray-800 py-3 px-4 shadow-md sticky top-0 z-40 border-b border-white/10 flex flex-col gap-3 pt-safe">
-        <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView(AppView.HOME)}>
-                <div className="w-10 h-10 bg-white rounded-lg p-1 shadow-inner">
-                    <img src="/logo.svg" alt="CTC Logo" className="w-full h-full" />
-                </div>
-                <div className="flex flex-col">
-                    <h1 className="text-xl font-black tracking-tighter text-white uppercase leading-none">CTC Compliance Coach</h1>
-                    <p className="text-white/80 text-[10px] font-black tracking-widest uppercase">Clean Truck Check Support</p>
-                </div>
+      {/* HEADER SECTION */}
+      <header className="bg-navy dark:bg-gray-800 px-4 py-4 sticky top-0 z-40 border-b-2 border-white/10 pt-safe flex flex-col gap-4">
+        <div className="flex justify-between items-start">
+            <div className="flex flex-col cursor-pointer" onClick={() => setCurrentView(AppView.HOME)}>
+                <h1 className="text-2xl font-black tracking-tighter text-white uppercase leading-none">Compliance Coach</h1>
+                <p className="text-vibrantGreen text-[10px] font-black tracking-widest uppercase mt-1">Heavy Duty Support</p>
             </div>
-            <div className="text-[10px] font-black bg-white/10 px-3 py-1 rounded-full text-white">
-                DISPATCH: <span className="text-vibrantGreen uppercase animate-pulse">Online</span>
-            </div>
+            <button 
+              onClick={handleInstallClick} 
+              className="bg-white/10 border-2 border-white/20 text-white text-[10px] font-black px-4 py-2.5 rounded-xl uppercase tracking-wider hover:bg-white/20 transition-all shadow-lg active:scale-95"
+            >
+              DOWNLOAD APP
+            </button>
         </div>
-        <ActionButtons />
+        
+        {/* TOP ACTION ROW */}
+        <div className="flex gap-3">
+            <a href="tel:6173596953" className="flex-1 btn-heavy py-3.5 rounded-xl flex items-center justify-center gap-2 text-[11px] !bg-white !text-navy shadow-xl border-navy active:scale-95 transition-all">
+                CALL DISPATCH
+            </a>
+            <button onClick={handleShare} className="flex-1 btn-heavy py-3.5 rounded-xl flex items-center justify-center gap-2 text-[11px] !bg-white !text-navy shadow-xl border-navy active:scale-95 transition-all">
+                SHARE
+            </button>
+            <button onClick={() => setCurrentView(AppView.HOME)} className="flex-1 btn-heavy py-3.5 rounded-xl flex items-center justify-center gap-2 text-[11px] !bg-vibrantGreen !text-navy !border-navy shadow-xl active:scale-95 transition-all">
+                FIND TESTER
+            </button>
+        </div>
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 px-4 pt-3 pb-24 max-w-lg mx-auto w-full overflow-y-auto">
+      <main className="flex-1 px-4 pt-6 pb-24 max-w-lg mx-auto w-full overflow-y-auto">
         {currentView === AppView.HOME && (
             <VinChecker 
                 onAddToHistory={handleAddToHistory} 
@@ -160,45 +155,33 @@ const App: React.FC = () => {
         )}
         {currentView === AppView.ADMIN && <AdminView />}
         
-        <div className="mt-12 space-y-6 text-center pb-24 border-t border-white/20 pt-10">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-[2.5rem] shadow-2xl border-4 border-navy space-y-6 max-w-sm mx-auto">
-                <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => setCurrentView(AppView.TOOLS)} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center gap-2 text-[9px] font-black uppercase border-2 border-navy/10">
-                        <span>🛠️</span> ENGINE SCAN
-                    </button>
-                    <button onClick={() => setCurrentView(AppView.TOOLS)} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-2xl flex items-center justify-center gap-2 text-[9px] font-black uppercase border-2 border-navy/10">
-                        <span>📋</span> CHECKLISTS
-                    </button>
-                </div>
-                <div className="pt-2">
-                  <ActionButtons />
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <img src="/logo.svg" alt="CTC Logo" className="w-8 h-8" />
-                  <p className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest leading-loose">
-                      Statewide Compliance & Testing<br/>
-                      Serving All 58 CA Counties<br/>
-                      © 2026 CTC COMPLIANCE COACH
-                  </p>
-                </div>
+        {/* FOOTER INFO */}
+        <div className="mt-12 space-y-6 text-center pb-24 border-t-2 border-white/10 pt-10">
+            <div className="flex flex-col items-center gap-3">
+              <img src="/logo.svg" alt="CTC Logo" className="w-12 h-12 opacity-50" />
+              <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] leading-loose">
+                  Statewide Compliance & Testing<br/>
+                  Serving All 58 California Counties<br/>
+                  © 2026 CTC COMPLIANCE COACH
+              </p>
             </div>
         </div>
       </main>
 
-      {/* NAV BAR */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 pb-safe pt-1 px-1 flex justify-around items-end z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] h-[85px]">
+      {/* NAVIGATION BAR */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-gray-200 dark:border-gray-700 pb-safe pt-1 px-2 flex justify-around items-end z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.15)] h-[85px] transition-colors">
         {[
             { id: AppView.HOME, icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", label: "STATUS" },
             { id: AppView.TOOLS, icon: "M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z", label: "TOOLS" },
-            { id: AppView.ASSISTANT, icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z", label: " COACH AI" },
+            { id: AppView.ASSISTANT, icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z", label: "COACH AI" },
             { id: AppView.EDUCATION, icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253", label: "LEARN" },
             { id: AppView.PROFILE, icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z", label: "PROFILE" }
         ].map(btn => (
-            <button key={btn.id} onClick={() => setCurrentView(btn.id as AppView)} className={`flex flex-col items-center justify-center flex-1 h-full pb-4 transition-all duration-200 ${currentView === btn.id ? '-translate-y-2' : ''}`}>
-                <div className={`p-2 rounded-2xl mb-1 transition-colors ${currentView === btn.id ? 'bg-navy text-white shadow-lg' : 'text-gray-700 dark:text-gray-300'}`}>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={btn.icon} /></svg>
+            <button key={btn.id} onClick={() => setCurrentView(btn.id as AppView)} className={`flex flex-col items-center justify-center flex-1 h-full pb-4 transition-all duration-300 ${currentView === btn.id ? '-translate-y-2' : 'opacity-60'}`}>
+                <div className={`p-2.5 rounded-2xl mb-1 transition-all ${currentView === btn.id ? 'bg-navy text-white shadow-xl' : 'text-gray-500 dark:text-gray-400'}`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d={btn.icon} /></svg>
                 </div>
-                <span className={`text-[8px] font-black tracking-tighter uppercase ${currentView === btn.id ? 'text-navy dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>{btn.label}</span>
+                <span className={`text-[9px] font-black tracking-tighter uppercase ${currentView === btn.id ? 'text-navy dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>{btn.label}</span>
             </button>
         ))}
       </nav>

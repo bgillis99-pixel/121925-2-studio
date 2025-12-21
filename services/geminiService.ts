@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { MODEL_NAMES } from "../constants";
 import { Lead, ImageGenerationConfig, RegistrationData } from "../types";
@@ -30,11 +29,6 @@ CORE PRINCIPLES:
 1. Honesty & Urgency: Don't sugarcoat the complexity of CARB. Use "Registration Hold" or "Held" to describe the primary consequence of missing deadlines.
 2. Expertise: You know the 90-day window, the $30 annual fee, and the 14,000+ lbs GVWR requirement perfectly.
 3. Proactivity: If a user is missing a test, explain that they MUST NOT wait for a letter—letters are often too late.
-
-REGULATORY FACTS:
-- Deadlines: 2x/year starting 2025, 4x/year in 2027.
-- Registration Holds: DMV holds occur if the VIS portal is missing a passing test OR the annual $30 fee.
-- EFN: Engine Family Names are required for all tests.
 
 Rule: Always provide actionable steps. If a user needs a test, tell them to call dispatch immediately.
 Footer Requirement: End every response with: "\n\nNeed a Certified Mobile Tester? Call Us: 617-359-6953"
@@ -95,10 +89,20 @@ export const sendMessage = async (
 export const extractVinFromImage = async (file: File) => {
     const ai = getAI();
     const base64 = await fileToBase64(file);
-    const prompt = "Extract the 17-character VIN (Vehicle Identification Number) from this image. Only return the VIN string itself. If not found, return 'NOT_FOUND'.";
+    const prompt = `
+        You are a state-of-the-art VIN extraction agent. 
+        CRITICAL: Pay extreme attention to the difference between:
+        - 6 and G
+        - 5 and S
+        - 3 and S
+        - 0 and O
+        - 1 and I
+        REMEMBER: Official VINs NEVER contain the letters I (India), O (Oscar), or Q (Quebec). 
+        Extract the 17-character VIN from this image. Only return the VIN string itself.
+    `;
     
     const response = await ai.models.generateContent({
-        model: MODEL_NAMES.FLASH,
+        model: MODEL_NAMES.PRO,
         contents: [{
             parts: [
                 { inlineData: { data: base64, mimeType: file.type } },
@@ -127,10 +131,10 @@ export const extractVinFromImage = async (file: File) => {
 export const extractEngineTagInfo = async (file: File) => {
     const ai = getAI();
     const base64 = await fileToBase64(file);
-    const prompt = "Identify the Engine Family Name (EFN) and Model Year from this engine label. EFN is usually a 12-character alphanumeric code.";
+    const prompt = "Identify the Engine Family Name (EFN) and Model Year from this engine label. EFN is usually a 12-character alphanumeric code. Be extra careful with G vs 6 and S vs 5.";
     
     const response = await ai.models.generateContent({
-        model: MODEL_NAMES.FLASH,
+        model: MODEL_NAMES.PRO,
         contents: [{
             parts: [
                 { inlineData: { data: base64, mimeType: file.type } },
@@ -209,10 +213,10 @@ export const scoutTruckLead = async (file: File): Promise<Lead> => {
 export const parseRegistrationPhoto = async (file: File): Promise<RegistrationData> => {
     const ai = getAI();
     const base64 = await fileToBase64(file);
-    const prompt = "Extract all fields from this vehicle registration document.";
+    const prompt = "Extract all fields from this vehicle registration document. Be careful with alphanumeric confusion.";
     
     const response = await ai.models.generateContent({
-        model: MODEL_NAMES.FLASH,
+        model: MODEL_NAMES.PRO,
         contents: [{
             parts: [
                 { inlineData: { data: base64, mimeType: file.type } },
