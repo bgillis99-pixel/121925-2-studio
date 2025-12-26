@@ -9,13 +9,21 @@ import EducationCenter from './components/EducationCenter';
 import { AppView, User, HistoryItem } from './types';
 
 const THEME_KEY = 'vin_diesel_theme';
+const FLASH_KEY = 'vin_diesel_flash_mode';
 
-const App: React.FC = () => {
+export default function App() {
   const [currentView, setCurrentView] = useState<AppView>(AppView.HOME);
   const [user, setUser] = useState<User | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [showAlert, setShowAlert] = useState(false);
+  
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem(THEME_KEY) === 'dark';
+  });
+
+  const [isFlashMode, setIsFlashMode] = useState(() => {
+    const stored = localStorage.getItem(FLASH_KEY);
+    return stored === null ? true : stored === 'true'; // Default to true for "Flash UI"
   });
 
   const shareUrl = 'https://cleantruckcheckvin.app';
@@ -28,6 +36,34 @@ const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  useEffect(() => {
+    localStorage.setItem(FLASH_KEY, isFlashMode.toString());
+  }, [isFlashMode]);
+
+  // Regulatory Deadline Logic
+  useEffect(() => {
+    const checkDeadlines = () => {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const isSessionAlerted = sessionStorage.getItem('deadline_alert_shown');
+
+      if (currentYear >= 2025 && !isSessionAlerted) {
+        setShowAlert(true);
+        sessionStorage.setItem('deadline_alert_shown', 'true');
+        
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("🚨 COMPLIANCE ALERT", {
+            body: "2025 RULE CHANGE: Mandatory testing is now required TWICE per year.",
+            icon: "/logo.svg"
+          });
+        }
+      }
+    };
+
+    const timer = setTimeout(checkDeadlines, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleShare = async () => {
       if (navigator.share) {
@@ -50,7 +86,7 @@ const App: React.FC = () => {
   return (
     <div className={`min-h-screen flex flex-col ${isDarkMode ? 'bg-gray-900' : 'bg-iceWhite'} font-sans text-navy dark:text-gray-100 overflow-x-hidden transition-colors duration-300`}>
       
-      {/* HEADER SECTION - SHINING NAVY */}
+      {/* HEADER SECTION */}
       <header className="bg-navy dark:bg-gray-800 px-4 py-6 sticky top-0 z-40 border-b-4 border-teslaRed pt-safe flex flex-col gap-6 shadow-2xl">
         <div className="flex justify-between items-center">
             <div className="flex flex-col cursor-pointer" onClick={() => setCurrentView(AppView.HOME)}>
@@ -65,7 +101,6 @@ const App: React.FC = () => {
             </button>
         </div>
         
-        {/* TOP ACTION ROW */}
         <div className="flex gap-3">
             <a href="tel:6173596953" className="flex-1 btn-heavy py-4 rounded-2xl flex items-center justify-center gap-2 text-sm shadow-xl active:scale-95 transition-all">
                 CALL DISPATCH
@@ -76,7 +111,28 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* MAIN CONTENT AREA */}
+      {/* ALERT BANNER */}
+      {showAlert && (
+        <div className={`bg-yellow-400 border-b-4 border-navy p-4 flex items-center justify-between gap-4 animate-in slide-in-from-top duration-500 relative overflow-hidden ${isFlashMode ? 'card-shine' : ''}`}>
+          <div className="flex items-center gap-3 relative z-10">
+            <span className="text-2xl animate-bounce">⚠️</span>
+            <div>
+              <p className="text-[10px] font-black text-navy uppercase tracking-widest leading-none mb-1">2025 Regulatory Deadline</p>
+              <p className="text-xs font-bold text-navy leading-tight">
+                Mandatory testing frequency has <span className="underline decoration-2">DOUBLED</span>.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2 relative z-10">
+            <button onClick={() => setCurrentView(AppView.EDUCATION)} className="bg-navy text-white text-[9px] font-black px-3 py-2 rounded-lg uppercase shadow-md active:scale-90">
+              Learn
+            </button>
+            <button onClick={() => setShowAlert(false)} className="text-navy text-xl font-black p-1">&times;</button>
+          </div>
+        </div>
+      )}
+
+      {/* MAIN CONTENT */}
       <main className="flex-1 px-4 pt-8 pb-24 max-w-lg mx-auto w-full flex flex-col">
         <div className="flex-1">
           {currentView === AppView.HOME && (
@@ -86,6 +142,7 @@ const App: React.FC = () => {
                   onNavigateEducation={() => setCurrentView(AppView.EDUCATION)}
                   onInstallApp={() => {}}
                   onShare={handleShare}
+                  isFlashMode={isFlashMode}
               />
           )}
           {currentView === AppView.ASSISTANT && <ChatAssistant />}
@@ -99,14 +156,15 @@ const App: React.FC = () => {
               onRegister={() => {}} 
               onLogout={() => {}} 
               isDarkMode={isDarkMode}
+              isFlashMode={isFlashMode}
               toggleTheme={() => setIsDarkMode(!isDarkMode)}
+              toggleFlash={() => setIsFlashMode(!isFlashMode)}
               onAdminAccess={() => setCurrentView(AppView.ADMIN)}
             />
           )}
           {currentView === AppView.ADMIN && <AdminView />}
         </div>
         
-        {/* FOOTER INFO */}
         <div className="mt-auto py-12 text-center border-t-2 border-navy/5">
             <p className="text-sm font-black text-navy/40 dark:text-white/40 uppercase tracking-[0.2em] leading-loose px-6">
                 Statewide Compliance & Testing<br/>
@@ -116,7 +174,7 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* NAVIGATION BAR - FROSTED GLASS LOOK */}
+      {/* NAVIGATION BAR */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t-4 border-navy pb-safe pt-2 px-3 flex justify-around items-end z-50 shadow-[0_-10px_40px_rgba(14,51,134,0.15)] h-[95px] transition-colors">
         {[
             { id: AppView.HOME, icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", label: "STATUS" },
@@ -135,6 +193,4 @@ const App: React.FC = () => {
       </nav>
     </div>
   );
-};
-
-export default App;
+}
