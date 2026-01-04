@@ -46,14 +46,14 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
           
           <div className="relative z-10 space-y-8">
               <header className="space-y-1">
-                  <h2 className="font-heading text-4xl text-white tracking-tighter leading-none">REGISTRATION CLEARANCE</h2>
+                  <h2 className="font-heading text-5xl text-white tracking-tighter leading-none">ENTER VIN</h2>
                   <p className="text-liquidSilver text-[11px] font-black uppercase tracking-[0.4em] opacity-50">Identity Verification Protocol</p>
               </header>
 
               <div className="space-y-6">
                   <div className="space-y-3">
                       <div className="flex justify-between items-end px-1">
-                        <label className="text-[10px] font-black text-white uppercase tracking-widest">ASSET VIN (17 CHARACTERS)</label>
+                        <label className="text-[10px] font-black text-white uppercase tracking-widest">ASSET ID (17 CHARACTERS)</label>
                         <div className="flex items-center gap-2">
                             <span className={`text-[11px] font-black font-mono transition-all px-2 py-0.5 rounded ${inputVal.length === 17 ? 'bg-complianceGreen text-white shadow-[0_0_10px_rgba(0,200,83,0.5)]' : 'bg-white/10 text-liquidSilver/40'}`}>
                                 {inputVal.length} / 17
@@ -64,7 +64,7 @@ const VinChecker: React.FC<Props> = ({ onAddToHistory, onNavigateChat, onNavigat
                         type="text" 
                         value={inputVal} 
                         onChange={handleVinChange}
-                        placeholder="VIN IDENTIFIER"
+                        placeholder="SERIAL NUMBER"
                         className="w-full p-7 input-stark text-3xl font-heading tracking-widest placeholder:opacity-10 uppercase shadow-[0_10px_30px_rgba(255,255,255,0.05)]"
                       />
                   </div>
